@@ -1,0 +1,9 @@
+# Rockslink: every public page may be crawled
+User-agent: *
+Allow: /
+# working files, not pages
+Disallow: /_backup/
+Disallow: /tools/
+Disallow: /v2.html
+
+Sitemap: https://rockslink.com/sitemap.xml

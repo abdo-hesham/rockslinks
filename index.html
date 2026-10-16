@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rockslink — Global Logistics</title>
+  <meta name="description" content="Rockslink moves the world's cargo with vision and precision — ocean freight, port operations and end-to-end logistics." />
+  <link rel="canonical" href="https://rockslink.com/" />
+  <link rel="icon" href="favicon.ico" sizes="48x48" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <meta name="theme-color" content="#101a25" />
+  <link rel="preload" href="assets/fonts/dm-sans-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/dm-sans-500-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" as="image" href="frames/f_001.webp" />
+  <link rel="stylesheet" href="styles.css?v=20261016-20" />
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How long does a shipment take?", "acceptedAnswer": {"@type": "Answer", "text": "Land freight inside Egypt usually arrives in 1 to 3 working days. Sea freight depends on the route: about 5 to 12 days across the Mediterranean and 25 to 35 days from Asia. Air freight is usually 2 to 5 days door to door. Every quote states the transit time for your route."}}, {"@type": "Question", "name": "Will I know where my cargo is?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Your operator sends an update by WhatsApp or email at each step: pickup, departure, arrival, customs release and delivery. You can also call at any time during working hours."}}, {"@type": "Question", "name": "Which documents do I need?", "acceptedAnswer": {"@type": "Answer", "text": "For most international shipments: a commercial invoice, a packing list, the bill of lading or air waybill, and a certificate of origin. Imports into Egypt also need an ACID number. We send you a checklist for your shipment with the quote."}}, {"@type": "Question", "name": "Can you register the ACID number for me?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Our customs team handles the ACID registration with your supplier before the goods are shipped, so the cargo is not held at the port."}}, {"@type": "Question", "name": "What can't you ship?", "acceptedAnswer": {"@type": "Answer", "text": "Weapons, narcotics, counterfeit goods and any item banned by Egyptian customs or by the destination country. Some dangerous goods, such as batteries, chemicals and flammable liquids, can travel with the correct classification and packing. Tell us what the cargo is and we confirm before you book."}}, {"@type": "Question", "name": "Is my cargo insured?", "acceptedAnswer": {"@type": "Answer", "text": "Carrier liability is limited by law and rarely covers the full value of the goods. We recommend cargo insurance for the full invoice value, and we can arrange it for you. The premium is a small percentage of the cargo value and is shown on the quote."}}, {"@type": "Question", "name": "What happens if goods are damaged?", "acceptedAnswer": {"@type": "Answer", "text": "Take photos and note the damage on the delivery receipt before you sign. Then send the photos to your operator within 3 days. We open the claim with the insurer and follow it until it is settled."}}, {"@type": "Question", "name": "How do I pay?", "acceptedAnswer": {"@type": "Answer", "text": "By bank transfer in Egyptian pounds or US dollars. New customers pay before dispatch. Regular customers can apply for monthly invoicing with agreed credit terms."}}, {"@type": "Question", "name": "Are there hidden charges?", "acceptedAnswer": {"@type": "Answer", "text": "No. The quote lists every charge: freight, port and terminal fees, customs and delivery. Duties and taxes set by the government are shown separately and passed on at cost."}}]}
+  </script>
+</head>
+<body>
+
+  <!-- Preloader -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader__inner">
+      <svg class="logo-mark loader__mark" viewBox="0 0 40 24" aria-hidden="true"><use href="#mark" /></svg>
+      <span class="loader__word">rockslink</span>
+      <div class="loader__bar"><span id="loaderBar"></span></div>
+      <span class="loader__pct" id="loaderPct">0</span>
+    </div>
+  </div>
+
+  <!-- SVG sprite: rockslink mark (two interlocking links) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="mark" viewBox="0 0 40 24">
+      <rect x="1.5" y="4.5" width="22" height="15" rx="7.5" fill="none" stroke="currentColor" stroke-width="3" />
+      <rect x="16.5" y="4.5" width="22" height="15" rx="7.5" fill="none" stroke="currentColor" stroke-width="3" />
+    </symbol>
+    <symbol id="i-pin" viewBox="0 0 16 16"><path d="M8 14.5s5-4.6 5-8.6a5 5 0 0 0-10 0c0 4 5 8.6 5 8.6Z" /><circle cx="8" cy="5.9" r="1.8" /></symbol>
+    <symbol id="i-phone" viewBox="0 0 16 16"><path d="M3.6 2h2.5l1.2 3-1.6 1.1a8 8 0 0 0 4.2 4.2L11 8.7l3 1.2v2.5c0 .9-.7 1.6-1.6 1.6C6.8 14 2 9.2 2 3.6 2 2.7 2.7 2 3.6 2Z" /></symbol>
+    <symbol id="i-chat" viewBox="0 0 16 16"><path d="M2.3 13.7l.9-2.8a5.8 5.8 0 1 1 2.3 2.2l-3.2.6Z" /></symbol>
+    <symbol id="i-mail" viewBox="0 0 16 16"><rect x="2" y="3.5" width="12" height="9" rx="1.5" /><path d="M2.6 4.6 8 8.4l5.4-3.8" /></symbol>
+    <symbol id="i-clock" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" /><path d="M8 4.8V8l2.2 1.5" /></symbol>
+    <symbol id="i-user" viewBox="0 0 16 16"><circle cx="8" cy="5.4" r="2.7" /><path d="M2.8 14c.6-2.6 2.7-4.1 5.2-4.1s4.6 1.5 5.2 4.1" /></symbol>
+    <symbol id="i-building" viewBox="0 0 16 16"><path d="M3 14V3h6.5v11M9.5 6.5H13V14M2 14h12M5.2 5.5h2M5.2 8h2M5.2 10.5h2" /></symbol>
+    <symbol id="i-box" viewBox="0 0 16 16"><path d="M8 1.8 14 5v6L8 14.2 2 11V5l6-3.2Z" /><path d="M2 5l6 3.2L14 5M8 8.2v6" /></symbol>
+    <symbol id="i-pin-solid" viewBox="0 0 16 16"><path fill="currentColor" stroke="none" d="M8 15.2s5.2-4.9 5.2-9.1a5.2 5.2 0 1 0-10.4 0c0 4.2 5.2 9.1 5.2 9.1Zm0-7.2a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z" /></symbol>
+    <symbol id="i-phone-solid" viewBox="0 0 16 16"><path fill="currentColor" stroke="none" d="M3.4 1.5h2.9l1.3 3.4-1.8 1.2a8.3 8.3 0 0 0 4.1 4.1l1.2-1.8 3.4 1.3v2.9c0 .9-.7 1.6-1.6 1.6C6.6 14.2 1.8 9.4 1.8 3.1c0-.9.7-1.6 1.6-1.6Z" /><path d="M10 2.2a4 4 0 0 1 3.8 3.8M9.6 4.4a1.9 1.9 0 0 1 2 2" /></symbol>
+    <symbol id="i-wa" viewBox="0 0 16 16"><path d="M2.2 13.8l.8-2.9a6 6 0 1 1 2.2 2.2l-3 .7Z" /><path fill="currentColor" stroke="none" d="M6.1 5.2c.2-.3.6-.3.8 0l.5 1c.1.2 0 .4-.1.6l-.3.4c.4.8 1 1.4 1.8 1.8l.4-.3c.2-.1.4-.2.6-.1l1 .5c.3.1.3.5 0 .8-.5.6-1.2.8-2 .5A5.2 5.2 0 0 1 5.6 7.2c-.3-.8-.1-1.5.5-2Z" /></symbol>
+    <symbol id="i-mail-solid" viewBox="0 0 16 16"><path fill="currentColor" stroke="none" d="M2.6 3h10.8c.6 0 1.1.5 1.1 1.1v.2L8 8.6 1.5 4.3v-.2C1.5 3.5 2 3 2.6 3Zm-1.1 2.8L8 10.1l6.5-4.3v6.1c0 .6-.5 1.1-1.1 1.1H2.6c-.6 0-1.1-.5-1.1-1.1V5.8Z" /></symbol>
+    <symbol id="i-doc" viewBox="0 0 16 16"><path d="M4 1.8h5.3L12.5 5v9.2H4Z" /><path d="M9 1.8V5h3.5M6 8h4.5M6 10.5h4.5" /></symbol>
+    <symbol id="i-lock" viewBox="0 0 16 16"><rect x="3.2" y="7" width="9.6" height="7.2" rx="1.4" fill="currentColor" stroke="none" /><path d="M5.2 7V5.2a2.8 2.8 0 0 1 5.6 0V7" /></symbol>
+    <symbol id="i-whatsapp" viewBox="0 0 24 24"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.26-.47-2.39-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.48-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.7.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.18-1.42-.08-.12-.28-.2-.57-.34m-5.42 7.4h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 0 1 2.89 6.99c0 5.45-4.44 9.88-9.88 9.88m8.41-18.3A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.68 1.45h.01c6.55 0 11.89-5.34 11.89-11.89a11.82 11.82 0 0 0-3.48-8.41Z" /></symbol>
+    <symbol id="i-origin" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5" /><circle cx="8" cy="8" r="1.8" /></symbol>
+  </svg>
+
+  <!-- Header -->
+  <header class="nav" id="nav" data-theme="light">
+    <a href="#top" class="nav__brand" aria-label="Rockslink home">
+      <svg class="logo-mark" viewBox="0 0 40 24" aria-hidden="true"><use href="#mark" /></svg>
+      <span class="nav__word">rockslink</span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#top" class="is-active" data-spy="top">Home</a>
+      <a href="#about" data-spy="about">About</a>
+      <a href="#services" data-spy="services">Services</a>
+      <a href="#faq" data-spy="faq">FAQ</a>
+      <a href="#contact" data-spy="contact">Contact</a>
+    </nav>
+    <div class="nav__right">
+      <a href="https://wa.me/201000000000" target="_blank" rel="noopener" class="nav__news"><svg class="nav__wa" aria-hidden="true"><use href="#i-whatsapp" /></svg>WhatsApp</a>
+      <button class="nav__menu" id="menuBtn" aria-expanded="false" aria-controls="menu">Menu</button>
+    </div>
+  </header>
+
+  <!-- Fullscreen menu -->
+  <div class="menu" id="menu" aria-hidden="true">
+    <div class="menu__inner">
+      <ul class="menu__list">
+        <li><a href="#top"><span>01</span>Home</a></li>
+        <li><a href="#about"><span>02</span>About</a></li>
+        <li><a href="#services"><span>03</span>Services</a></li>
+        <li><a href="#faq"><span>04</span>FAQ</a></li>
+        <li><a href="#contact"><span>05</span>Contact</a></li>
+      </ul>
+      <div class="menu__aside">
+        <p class="kicker">Office</p>
+        <p>Office address<br />Alexandria, Egypt</p>
+        <p class="kicker">Get in touch</p>
+        <p><a href="tel:+201000000000">+20 100 000 0000</a><br /><a href="mailto:info@rockslink.com">info@rockslink.com</a></p>
+      </div>
+    </div>
+  </div>
+
+  <main id="top">
+    <!-- Scroll-driven film -->
+    <section class="film" id="film">
+      <div class="film__sticky">
+        <canvas class="film__canvas" id="filmCanvas" aria-label="Drone descending through clouds over a Rockslink port and a container ship at sea" role="img"></canvas>
+        <div class="film__shade" id="filmShade"></div>
+        <div class="film__shade film__shade--ship" id="shipShade"></div>
+        <div class="film__top" id="topShade"></div>
+
+        <!-- Chapter 1: hero -->
+        <div class="chapter chapter--hero" id="ch1">
+          <h1 class="hero__title">
+            <span class="line"><span>Connecting ports,</span></span>
+            <span class="line film-light"><span>moving the world.</span></span>
+          </h1>
+          <p class="hero__sub"><span>Global logistics with purpose</span></p>
+        </div>
+
+        <!-- Chapter 2: statement -->
+        <div class="chapter chapter--statement" id="ch2">
+          <p class="statement" id="statement">We build lasting partnerships with vision and precision across every ocean</p>
+        </div>
+
+        <!-- Chapter 3: ship -->
+        <div class="chapter chapter--ship" id="ch3" inert>
+          <p class="ship__meta">Rockslink <i>|</i> Ocean Freight</p>
+          <h2 class="ship__title"><span class="line"><span>Delivering ambition,</span></span><span class="line film-light"><span>shaping tomorrow.</span></span></h2>
+          <a href="#contact" class="pill">Contact Rockslink <span class="pill__icon"><svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" /></svg></span></a>
+        </div>
+
+        <!-- Right rail -->
+        <div class="rail" aria-hidden="true">
+          <div class="rail__track"><span id="railFill"></span></div>
+        </div>
+        <div class="dots" id="dots" aria-hidden="true">
+          <span class="is-active"></span><span></span><span></span>
+        </div>
+        <button class="skip" id="skipIntro" type="button">Skip intro</button>
+        <button class="next" id="nextBtn" aria-label="Next section">
+          <svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Film -> Services: the camera climbs back up through the cloud deck
+         (WebGL, main.js) into a short band of navy that clears to the light
+         of Services -->
+    <div class="bridge" id="bridge" aria-hidden="true">
+      <canvas class="bridge__clouds" id="clouds"></canvas>
+    </div>
+
+    <!-- 03 Services: one screen, held while the container travels. The
+         dotted world map over the clouds is the background (a slow light
+         passes over its dots, main.js); the route comes in from the clouds,
+         and as the container reaches each checkpoint that service's card
+         comes up beside it. On narrow screens the cards follow each other
+         down a rail. -->
+    <section class="services" id="services" aria-labelledby="svcTitle">
+      <div class="svc-track" id="svcTrack">
+        <div class="svc-frame" id="svcFrame">
+          <div class="svc-bg" aria-hidden="true">
+            <img class="svc-bg__img" src="assets/services/map-bg.webp" alt="" width="1672" height="941" decoding="async" />
+            <canvas class="svc-bg__light" id="svcLight"></canvas>
+          </div>
+          <svg class="svc-route" id="svcRoute" aria-hidden="true">
+            <g class="svc-route__links"></g>
+            <path class="route__ahead" /><path class="route__under" /><path class="route__done" />
+            <g class="svc-route__nodes"></g>
+          </svg>
+          <header class="svc-head">
+            <p class="label"><span class="label__n">/ 03</span>Services</p>
+            <h2 class="section-title" id="svcTitle">
+              <span class="line"><span>Six services.</span></span>
+              <span class="line section-title__light"><span>One team, quay to doorstep.</span></span>
+            </h2>
+          </header>
+          <p class="svc-intro">From pickup to final delivery, we handle every step of your supply chain with a single team and complete visibility.</p>
+          <ol class="svc-list" id="svcList">
+          <li class="svc-card svc-card--r" style="--x: 0.573; --y: 0.24; --w: 0.2835; --h: 0.147">
+            <div class="svc-card__body">
+              <span class="svc-card__n" aria-hidden="true">01</span>
+              <h3 class="svc-card__tag" id="svc0">Land freight</h3>
+              <p class="svc-card__desc">Reliable road transport across cities and borders.</p>
+            </div>
+            <figure class="svc-card__media"><img class="svc-card__img" src="assets/services/card/land.webp" alt="Rockslink truck carrying a container on the coast road near the port" width="720" height="405" decoding="async" loading="lazy" style="object-position: 32% 50%" /></figure>
+          </li>
+          <li class="svc-card svc-card--l" style="--x: 0.1435; --y: 0.3316; --w: 0.293; --h: 0.1636">
+            <div class="svc-card__body">
+              <span class="svc-card__n" aria-hidden="true">02</span>
+              <h3 class="svc-card__tag" id="svc1">Sea freight</h3>
+              <p class="svc-card__desc">Full and shared containers across the Mediterranean and beyond.</p>
+            </div>
+            <figure class="svc-card__media"><img class="svc-card__img" src="assets/services/card/sea.webp" alt="Rockslink container ship leaving port" width="720" height="405" decoding="async" loading="lazy" style="object-position: 58% 50%" /></figure>
+          </li>
+          <li class="svc-card svc-card--r" style="--x: 0.635; --y: 0.4485; --w: 0.3128; --h: 0.153">
+            <div class="svc-card__body">
+              <span class="svc-card__n" aria-hidden="true">03</span>
+              <h3 class="svc-card__tag" id="svc2">Air freight</h3>
+              <p class="svc-card__desc">Fast and flexible air cargo for time-sensitive shipments.</p>
+            </div>
+            <figure class="svc-card__media"><img class="svc-card__img" src="assets/services/card/air.webp" alt="Rockslink cargo being loaded onto a freighter aircraft" width="720" height="405" decoding="async" loading="lazy" style="object-position: 66% 50%" /></figure>
+          </li>
+          <li class="svc-card svc-card--l" style="--x: 0.0897; --y: 0.5335; --w: 0.2978; --h: 0.158">
+            <div class="svc-card__body">
+              <span class="svc-card__n" aria-hidden="true">04</span>
+              <h3 class="svc-card__tag" id="svc3">Customs clearance</h3>
+              <p class="svc-card__desc">Expert handling for smoother, faster border processes.</p>
+            </div>
+            <figure class="svc-card__media"><img class="svc-card__img" src="assets/services/card/customs.webp" alt="Rockslink truck passing through the port customs scanner" width="720" height="405" decoding="async" loading="lazy" style="object-position: 34% 50%" /></figure>
+          </li>
+          <li class="svc-card svc-card--r" style="--x: 0.616; --y: 0.65; --w: 0.2943; --h: 0.1615">
+            <div class="svc-card__body">
+              <span class="svc-card__n" aria-hidden="true">05</span>
+              <h3 class="svc-card__tag" id="svc4">Warehousing</h3>
+              <p class="svc-card__desc">Secure storage and inventory solutions at key locations.</p>
+            </div>
+            <figure class="svc-card__media"><img class="svc-card__img" src="assets/services/card/warehousing.webp" alt="Forklift moving pallets in a Rockslink warehouse" width="720" height="405" decoding="async" loading="lazy" style="object-position: 60% 50%" /></figure>
+          </li>
+          <li class="svc-card svc-card--l" style="--x: 0.1184; --y: 0.729; --w: 0.305; --h: 0.159">
+            <div class="svc-card__body">
+              <span class="svc-card__n" aria-hidden="true">06</span>
+              <h3 class="svc-card__tag" id="svc5">Last-mile delivery</h3>
+              <p class="svc-card__desc">From our warehouse to your customer’s door.</p>
+            </div>
+            <figure class="svc-card__media"><img class="svc-card__img" src="assets/services/card/lastmile.webp" alt="Rockslink courier handing a parcel to a shop owner" width="720" height="405" decoding="async" loading="lazy" style="object-position: 72% 50%" /></figure>
+          </li>
+          </ol>
+          <div class="svc-next">
+            <a href="#faq" class="svc-next__btn" id="svcNext"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v11M4 9l4 4 4-4" /></svg>Next section</a>
+            <span class="svc-next__to">/ 04 FAQ</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 FAQ + Contact, one journey: the white relief map from the contact
+         reference (assets/atlas, cleaned by tools/clean-reference.py). The
+         container comes down out of Services onto Rotterdam and sails port
+         to port; each port lights up and answers one question. Then it sails
+         home to Alexandria, the contact block rises over the still map and
+         holds while the form is filled in, and only then the page moves on. -->
+    <section class="atlas" id="faq" aria-labelledby="atlasTitle">
+      <div class="atlas__pin" id="atlasPin" style="--n: 9">
+        <div class="atlas__stage" id="atlasStage">
+          <div class="atlas__world" id="atlasWorld" aria-hidden="true">
+            <img class="atlas__map" src="assets/atlas/map.webp?v=2" srcset="assets/atlas/map-m.webp?v=2 2500w, assets/atlas/map.webp?v=2 5000w" sizes="2500px" width="2500" height="1450" alt="" decoding="async" loading="lazy" />
+            <svg class="atlas__routes" id="atlasRoutes" viewBox="0 0 2500 1450">
+              <defs>
+                <radialGradient id="portGlow">
+                  <stop offset="0" stop-color="#7cc4ff" stop-opacity="0.5" />
+                  <stop offset="0.5" stop-color="#7cc4ff" stop-opacity="0.16" />
+                  <stop offset="1" stop-color="#7cc4ff" stop-opacity="0" />
+                </radialGradient>
+                <radialGradient id="nodeGrad" cx="0.4" cy="0.35" r="0.7">
+                  <stop offset="0" stop-color="#ffffff" />
+                  <stop offset="0.55" stop-color="#d9ecfb" />
+                  <stop offset="1" stop-color="#7fb4e3" />
+                </radialGradient>
+                <filter id="beaconBlur" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="3" /></filter>
+                <filter id="nodeShadow" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="1.2" /></filter>
+              </defs>
+              <g id="atlasLegs"></g>
+              <g id="atlasPorts"></g>
+            </svg>
+          </div>
+          <div class="atlas__veil" id="atlasVeil" aria-hidden="true"></div>
+          <div class="atlas__marker marker" id="atlasMarker" aria-hidden="true"></div>
+          <p class="atlas__place" id="atlasPlace" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M8 15s5-4.7 5-8.8a5 5 0 0 0-10 0C3 10.3 8 15 8 15Z" /><circle cx="8" cy="6.2" r="1.9" /></svg>Alexandria</p>
+
+          <header class="atlas__head">
+            <p class="label"><span class="label__n">/ 04</span>FAQ</p>
+            <h2 class="atlas__title" id="atlasTitle">
+              <span class="line"><span>Nine questions,</span></span>
+              <span class="line section-title__light"><span>answered port by port.</span></span>
+            </h2>
+            <div class="atlas__index">
+              <button type="button" class="atlas__index-btn" id="atlasIndexBtn" aria-expanded="false" aria-controls="atlasIndex">All questions <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg></button>
+              <ol class="atlas__index-list" id="atlasIndex" hidden><li><button type="button" data-q="0"><span>01</span>How long does a shipment take?</button></li><li><button type="button" data-q="1"><span>02</span>Will I know where my cargo is?</button></li><li><button type="button" data-q="2"><span>03</span>Which documents do I need?</button></li><li><button type="button" data-q="3"><span>04</span>Can you register the ACID number for me?</button></li><li><button type="button" data-q="4"><span>05</span>What can&#x27;t you ship?</button></li><li><button type="button" data-q="5"><span>06</span>Is my cargo insured?</button></li><li><button type="button" data-q="6"><span>07</span>What happens if goods are damaged?</button></li><li><button type="button" data-q="7"><span>08</span>How do I pay?</button></li><li><button type="button" data-q="8"><span>09</span>Are there hidden charges?</button></li></ol>
+            </div>
+            <a href="#contact" class="text-link atlas__skip">Skip to the form <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg></a>
+          </header>
+
+          <div class="atlas__card" id="atlasCard">
+            <ol class="atlas__faq" id="atlasFaq">
+              <li class="atlas__q" id="q1" data-lon="4.48" data-lat="51.92" data-x="992" data-y="499">
+                <p class="atlas__port"><span>01 / 09</span>Rotterdam, Netherlands</p>
+                <h3>How long does a shipment take?</h3>
+                <div class="atlas__a">
+                  <p>Land freight inside Egypt usually arrives in 1 to 3 working days. Sea freight depends on the route: about 5 to 12 days across the Mediterranean and 25 to 35 days from Asia.</p>
+                  <p>Air freight is usually 2 to 5 days door to door. Every quote states the transit time for your route.</p>
+                </div>
+              </li>
+              <li class="atlas__q" id="q2" data-lon="18.65" data-lat="54.35" data-x="1074" data-y="482">
+                <p class="atlas__port"><span>02 / 09</span>Gdańsk, Poland</p>
+                <h3>Will I know where my cargo is?</h3>
+                <div class="atlas__a">
+                  <p>Yes. Your operator sends an update by WhatsApp or email at each step: pickup, departure, arrival, customs release and delivery.</p>
+                  <p>You can also call at any time during working hours.</p>
+                </div>
+              </li>
+              <li class="atlas__q" id="q3" data-lon="30.73" data-lat="46.48" data-x="1157" data-y="549">
+                <p class="atlas__port"><span>03 / 09</span>Odesa, Ukraine</p>
+                <h3>Which documents do I need?</h3>
+                <div class="atlas__a">
+                  <p>For most international shipments: a commercial invoice, a packing list, the bill of lading or air waybill, and a certificate of origin.</p>
+                  <p>Imports into Egypt also need an ACID number. We send you a checklist for your shipment with the quote.</p>
+                </div>
+              </li>
+              <li class="atlas__q" id="q4" data-lon="49.87" data-lat="40.41" data-x="1250" data-y="609">
+                <p class="atlas__port"><span>04 / 09</span>Baku, Azerbaijan</p>
+                <h3>Can you register the ACID number for me?</h3>
+                <div class="atlas__a">
+                  <p>Yes. Our customs team handles the ACID registration with your supplier before the goods are shipped, so the cargo is not held at the port.</p>
+                </div>
+              </li>
+              <li class="atlas__q" id="q5" data-lon="55.03" data-lat="25.0" data-x="1305" data-y="680">
+                <p class="atlas__port"><span>05 / 09</span>Jebel Ali, UAE</p>
+                <h3>What can&#x27;t you ship?</h3>
+                <div class="atlas__a">
+                  <p>Weapons, narcotics, counterfeit goods and any item banned by Egyptian customs or by the destination country.</p>
+                  <p>Some dangerous goods, such as batteries, chemicals and flammable liquids, can travel with the correct classification and packing. Tell us what the cargo is and we confirm before you book.</p>
+                </div>
+              </li>
+              <li class="atlas__q" id="q6" data-lon="72.88" data-lat="19.08" data-x="1400" data-y="728">
+                <p class="atlas__port"><span>06 / 09</span>Mumbai, India</p>
+                <h3>Is my cargo insured?</h3>
+                <div class="atlas__a">
+                  <p>Carrier liability is limited by law and rarely covers the full value of the goods. We recommend cargo insurance for the full invoice value, and we can arrange it for you.</p>
+                  <p>The premium is a small percentage of the cargo value and is shown on the quote.</p>
+                </div>
+              </li>
+              <li class="atlas__q" id="q7" data-lon="57.5" data-lat="-20.16" data-x="1300" data-y="995">
+                <p class="atlas__port"><span>07 / 09</span>Port Louis, Mauritius</p>
+                <h3>What happens if goods are damaged?</h3>
+                <div class="atlas__a">
+                  <p>Take photos and note the damage on the delivery receipt before you sign. Then send the photos to your operator within 3 days.</p>
+                  <p>We open the claim with the insurer and follow it until it is settled.</p>
+                </div>
+              </li>
+              <li class="atlas__q" id="q8" data-lon="34.84" data-lat="-19.83" data-x="1123" data-y="934">
+                <p class="atlas__port"><span>08 / 09</span>Beira, Mozambique</p>
+                <h3>How do I pay?</h3>
+                <div class="atlas__a">
+                  <p>By bank transfer in Egyptian pounds or US dollars. New customers pay before dispatch.</p>
+                  <p>Regular customers can apply for monthly invoicing with agreed credit terms.</p>
+                </div>
+              </li>
+              <li class="atlas__q" id="q9" data-lon="15.31" data-lat="-4.32" data-x="1021" data-y="848">
+                <p class="atlas__port"><span>09 / 09</span>Kinshasa, DR Congo</p>
+                <h3>Are there hidden charges?</h3>
+                <div class="atlas__a">
+                  <p>No. The quote lists every charge: freight, port and terminal fees, customs and delivery.</p>
+                  <p>Duties and taxes set by the government are shown separately and passed on at cost.</p>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <nav class="atlas__steps" id="atlasSteps" aria-label="Questions">
+            <button type="button" data-q="0" aria-label="Question 1: How long does a shipment take?"></button><button type="button" data-q="1" aria-label="Question 2: Will I know where my cargo is?"></button><button type="button" data-q="2" aria-label="Question 3: Which documents do I need?"></button><button type="button" data-q="3" aria-label="Question 4: Can you register the ACID number for me?"></button><button type="button" data-q="4" aria-label="Question 5: What can&#x27;t you ship?"></button><button type="button" data-q="5" aria-label="Question 6: Is my cargo insured?"></button><button type="button" data-q="6" aria-label="Question 7: What happens if goods are damaged?"></button><button type="button" data-q="7" aria-label="Question 8: How do I pay?"></button><button type="button" data-q="8" aria-label="Question 9: Are there hidden charges?"></button>
+          </nav>
+        </div>
+
+        <!-- Contact: the journey's destination. The container rests at
+             Alexandria in the gap between the details and the form, with the
+             relief map and the finished route around it. -->
+        <div class="atlas__contact" id="contact" aria-labelledby="ctTitle">
+          <div class="atlas__contact-in">
+            <div class="contact__topline"><p class="label"><span class="label__n">/ 05</span>Contact</p><i aria-hidden="true"></i></div>
+            <div class="contact__info">
+              <h2 class="contact__title" id="ctTitle">
+                <span class="line"><span>Let's move</span></span>
+                <span class="line contact__title-light"><span>what matters.</span></span>
+              </h2>
+              <p class="contact__lede">Tell us what you are shipping and where it is going. Our team will help you find the right logistics solution.</p>
+
+              <!-- Placeholder contact details: replace with the real Rockslink details -->
+              <dl class="info">
+                <div><dt><span class="info__ico"><svg class="ico" aria-hidden="true"><use href="#i-pin-solid" /></svg></span>Office</dt><dd>Alexandria, Egypt</dd></div>
+                <div><dt><span class="info__ico"><svg class="ico" aria-hidden="true"><use href="#i-phone-solid" /></svg></span>Phone</dt><dd><a href="tel:+201000000000">+20 100 000 0000</a></dd></div>
+                <div><dt><span class="info__ico"><svg class="ico" aria-hidden="true"><use href="#i-wa" /></svg></span>WhatsApp</dt><dd><a href="https://wa.me/201000000000" target="_blank" rel="noopener" aria-label="WhatsApp +20 100 000 0000">+20 100 000 0000</a></dd></div>
+                <div><dt><span class="info__ico"><svg class="ico" aria-hidden="true"><use href="#i-mail-solid" /></svg></span>Email</dt><dd><a href="mailto:info@rockslink.com">info@rockslink.com</a></dd></div>
+                <div><dt><span class="info__ico"><svg class="ico" aria-hidden="true"><use href="#i-clock" /></svg></span>Working hours</dt><dd>Saturday – Thursday, 9:00 – 18:00</dd></div>
+              </dl>
+
+              <a class="office-card" href="https://www.google.com/maps?q=Alexandria%2C%20Egypt" target="_blank" rel="noopener">
+                <span class="office-card__map" aria-hidden="true"></span>
+                <span class="office-card__text"><b>Our office</b><span>Alexandria, Egypt</span></span>
+                <svg class="office-card__go" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5" /></svg>
+                <span class="sr-only">Open in Google Maps</span>
+              </a>
+            </div>
+
+            <form class="enquiry" id="enquiry" novalidate data-endpoint="" data-email="info@rockslink.com" data-whatsapp="201000000000" aria-labelledby="enquiryTitle">
+              <div class="enquiry__head">
+                <div>
+                  <p class="label">Request a quote</p>
+                  <h3 class="enquiry__title" id="enquiryTitle">Get a tailored quote <span>for your shipment.</span></h3>
+                </div>
+                <p class="enquiry__intro">Describe your cargo and requirements and we'll get back to you with a competitive solution.</p>
+              </div>
+              <div class="field-row">
+                <label class="field"><span>Name <b aria-hidden="true">*</b></span><span class="field__box"><svg class="ico" aria-hidden="true"><use href="#i-user" /></svg><input name="name" type="text" autocomplete="name" placeholder="Your full name" required /></span></label>
+                <label class="field"><span>Company</span><span class="field__box"><svg class="ico" aria-hidden="true"><use href="#i-building" /></svg><input name="company" type="text" autocomplete="organization" placeholder="Your company name" /></span></label>
+              </div>
+              <div class="field-row">
+                <label class="field"><span>Phone <b aria-hidden="true">*</b></span><span class="field__box"><svg class="ico" aria-hidden="true"><use href="#i-phone" /></svg><input name="phone" type="tel" autocomplete="tel" placeholder="+20 100 000 0000" required /></span></label>
+                <label class="field"><span>Email</span><span class="field__box"><svg class="ico" aria-hidden="true"><use href="#i-mail" /></svg><input name="email" type="email" autocomplete="email" placeholder="you@company.com" /></span></label>
+              </div>
+              <label class="field">
+                <span>Service <b aria-hidden="true">*</b></span>
+                <span class="field__box"><svg class="ico" aria-hidden="true"><use href="#i-box" /></svg><select name="service" id="serviceSelect" required>
+                  <option value="">Choose a service</option>
+                  <option>Land freight</option>
+                  <option>Sea freight</option>
+                  <option>Air freight</option>
+                  <option>Customs clearance</option>
+                  <option>Warehousing</option>
+                  <option>Last-mile delivery</option>
+                  <option>Not sure yet</option>
+                </select></span>
+              </label>
+              <div class="field-row">
+                <label class="field"><span>From</span><span class="field__box"><svg class="ico" aria-hidden="true"><use href="#i-origin" /></svg><input name="origin" type="text" placeholder="City or port" /></span></label>
+                <label class="field"><span>To</span><span class="field__box"><svg class="ico" aria-hidden="true"><use href="#i-pin" /></svg><input name="destination" type="text" placeholder="City or port" /></span></label>
+              </div>
+              <label class="field"><span>Cargo details <b aria-hidden="true">*</b></span><span class="field__box field__box--area"><svg class="ico" aria-hidden="true"><use href="#i-doc" /></svg><textarea name="cargo" rows="3" required placeholder="What it is, weight or volume, number of pieces, ready date and any special requirements…"></textarea></span></label>
+              <label class="hp" aria-hidden="true">Leave empty<input name="website" type="text" tabindex="-1" autocomplete="off" /></label>
+              <div class="enquiry__actions">
+                <button type="submit" class="btn">Send enquiry <i><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg></i></button>
+                <button type="button" class="btn btn--ghost" id="enquiryWa"><svg class="btn__wa" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-whatsapp" /></svg>Send on WhatsApp</button>
+              </div>
+              <p class="enquiry__status" id="enquiryStatus" role="status" aria-live="polite"></p>
+              <p class="enquiry__note"><svg class="ico" aria-hidden="true"><use href="#i-lock" /></svg>Your information is kept confidential and used only for your enquiry. <a href="privacy.html">Privacy Policy</a></p>
+            </form>
+          </div>
+        </div>
+        <!-- the dwell: the contact block holds still on the map for this
+             much scroll before the page moves on -->
+        <div class="atlas__dwell" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <!-- Quote: the closing scene. The route picks up below the form and
+         the container sails down to the Rockslink mark, where it docks and
+         the mark lights up above the invitation. -->
+    <section class="quote" id="quote" aria-labelledby="quoteTitle">
+      <canvas class="quote__clouds" id="quoteClouds" aria-hidden="true"></canvas>
+      <div class="container quote__copy">
+        <div class="quote__logo" id="quoteLogo" aria-hidden="true">
+          <svg class="logo-mark" viewBox="0 0 40 24"><use href="#mark" /></svg>
+        </div>
+        <p class="label label--dark">Request a quote</p>
+        <h2 class="section-title" id="quoteTitle">
+          <span class="line"><span>Tell us the route.</span></span>
+          <span class="line section-title__light"><span>We price it in one working day.</span></span>
+        </h2>
+        <a href="#contact" class="btn btn--light">Request a quote <i><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg></i></a>
+      </div>
+    </section>
+
+    <!-- The two shipment routes the marker follows (drawn by main.js):
+         the Rockslink container on the ship -> Services, and the form -> the
+         Rockslink mark in the quote. -->
+    <svg class="route" id="route1" aria-hidden="true"><path class="route__ahead" /><path class="route__under" /><path class="route__done" /><circle class="route__node route__node--from" r="5" /></svg>
+    <svg class="route" id="route3" aria-hidden="true"><path class="route__ahead" /><path class="route__under" /><path class="route__done" /></svg>
+    <svg class="route" id="route2" aria-hidden="true"><path class="route__ahead" /><path class="route__under" /><path class="route__done" /></svg>
+  </main>
+
+  <!-- The shipment marker: the container on its ring (drawn by main.js). Its front-bottom corner sits on the route. -->
+  <div class="cargo marker" id="cargo" aria-hidden="true"></div>
+
+  <footer class="footer">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a href="#top" class="nav__brand" aria-label="Rockslink home">
+          <svg class="logo-mark" viewBox="0 0 40 24" aria-hidden="true"><use href="#mark" /></svg>
+          <span class="nav__word">rockslink</span>
+        </a>
+        <p class="footer__copy">&copy; <span id="year">2026</span> Rockslink. All rights reserved.</p>
+      </div>
+      <nav class="footer__cols" aria-label="Footer">
+        <div>
+          <p class="footer__label">Pages</p>
+          <ul><li><a href="#top">Home</a></li><li><a href="#about">About</a></li><li><a href="#services">Services</a></li><li><a href="#faq">FAQ</a></li><li><a href="#contact">Contact</a></li></ul>
+        </div>
+        <div>
+          <p class="footer__label">Contact</p>
+          <ul><li><a href="tel:+201000000000">+20 100 000 0000</a></li><li><a href="mailto:info@rockslink.com">info@rockslink.com</a></li><li><a href="https://wa.me/201000000000" target="_blank" rel="noopener">WhatsApp</a></li><li><span>Alexandria, Egypt</span></li></ul>
+        </div>
+        <div>
+          <p class="footer__label">Socials</p>
+          <ul><li><a href="#" target="_blank" rel="noopener">LinkedIn</a></li><li><a href="#" target="_blank" rel="noopener">Facebook</a></li><li><a href="#" target="_blank" rel="noopener">Instagram</a></li></ul>
+        </div>
+        <div>
+          <p class="footer__label">Legal</p>
+          <ul><li><a href="privacy.html">Privacy Policy</a></li><li><a href="terms.html">Terms of Service</a></li></ul>
+        </div>
+      </nav>
+    </div>
+    <div class="footer__word" aria-hidden="true"><span>rockslink</span></div>
+  </footer>
+
+  <!-- Floating WhatsApp -->
+  <button type="button" class="to-top" id="toTop" aria-label="Back to top"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" /></svg></button>
+  <a class="quote-fab" id="quoteFab" href="#contact">Get a quote <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg></a>
+  <a class="wa-fab" href="https://wa.me/201000000000" target="_blank" rel="noopener" aria-label="Chat with Rockslink on WhatsApp">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.26-.47-2.39-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.48-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.7.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.18-1.42-.08-.12-.28-.2-.57-.34m-5.42 7.4h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 0 1 2.89 6.99c0 5.45-4.44 9.88-9.88 9.88m8.41-18.3A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.68 1.45h.01c6.55 0 11.89-5.34 11.89-11.89a11.82 11.82 0 0 0-3.48-8.41Z" /></svg>
+    <span>WhatsApp</span>
+  </a>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script src="main.js?v=20261016-17"></script>
+</body>
+</html>

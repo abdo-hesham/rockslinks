@@ -1,0 +1,24 @@
+# Apache / cPanel hosting. (Netlify, Vercel and GitHub Pages use 404.html
+# on their own and ignore this file.)
+
+# the site's own page for any missing address
+ErrorDocument 404 /404.html
+
+# text is sent compressed
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript image/svg+xml application/json
+</IfModule>
+
+# caching: pages are always checked for a newer version; styles and scripts
+# carry a ?v= version in their links; images and film frames rarely change
+<IfModule mod_headers.c>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.(css|js)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(webp|png|jpg|svg|woff2)$">
+    Header set Cache-Control "public, max-age=2592000, stale-while-revalidate=604800"
+  </FilesMatch>
+</IfModule>

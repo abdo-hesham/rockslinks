@@ -1,0 +1,8 @@
+# working copies and test output
+_backup/
+.playwright-mcp/
+.claude/
+__pycache__/
+
+# raw source footage (the site uses the frames in frames/ and frames-m/)
+*.mp4
