@@ -199,11 +199,16 @@
   let cw = 0, ch = 0;
 
   function resize() {
-    // phones draw the film at 1.5x at most: sharp enough for a moving film,
-    // and far fewer pixels to fill each frame
-    const dpr = Math.min(window.devicePixelRatio || 1, lightFilm ? 1.5 : 2);
-    cw = Math.round(sticky.clientWidth * dpr);
-    ch = Math.round(sticky.clientHeight * dpr);
+    const w = sticky.clientWidth, h = sticky.clientHeight;
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // phones: the 1280 x 720 frames are cropped to a slice of the film, which
+    // has no more detail than the frame's own pixels. The canvas is held to
+    // that size (on a tall phone, about 330 x 720 instead of 620 x 1370) and
+    // the screen scales it up, as it would a video: the same picture, with a
+    // quarter of the pixels to decode, copy and send to the screen each frame
+    if (lightFilm) dpr = Math.min(dpr, 1.5, 1280 / w, 720 / h);
+    cw = Math.round(w * dpr);
+    ch = Math.round(h * dpr);
     canvas.width = cw;
     canvas.height = ch;
     ctx.imageSmoothingEnabled = true;
@@ -218,7 +223,10 @@
   // scaled to the canvas; drawing one is then a plain copy. Only a small
   // window is kept, so memory stays low.
   const useBitmaps = lightFilm && "createImageBitmap" in window;
-  const BM_SPAN = 12;
+  // frames either side of the playhead kept decoded (the phone frames are
+  // every other one, so this is about 12 pictures each way: a fast swipe
+  // still lands on decoded frames)
+  const BM_SPAN = 24;
   const bitmaps = new Map(); // frame -> ImageBitmap, or "pending"
   let bmGen = 0;
   function dropBitmaps() {
@@ -234,14 +242,23 @@
     const dx = Math.min(0, Math.max(cw - dw, cw / 2 - dw * focusX(idx)));
     return { s, dx, dy: (ch - dh) / 2, dw, dh };
   }
+  let bmLast = 0, bmDir = 1;
   function primeBitmaps(c) {
     if (!useBitmaps || !cw) return;
+    if (c !== bmLast) { bmDir = c > bmLast ? 1 : -1; bmLast = c; }
+    let pending = 0;
     bitmaps.forEach((b, i) => {
       if (Math.abs(i - c) > BM_SPAN * 1.5) { if (b && b.close) b.close(); bitmaps.delete(i); }
+      else if (b === "pending") pending++;
     });
     const gen = bmGen;
-    for (let i = Math.max(0, c - BM_SPAN); i <= Math.min(FRAME_COUNT - 1, c + BM_SPAN); i++) {
-      if (!loaded[i] || bitmaps.has(i)) continue;
+    // nearest first, the way the film is going before the way back, and only
+    // a few at a time: on a fast swipe the decoder works on the frames about
+    // to be shown, not on ones the playhead has already left
+    for (let d = 0; d <= BM_SPAN * 2 && pending < 4; d++) {
+      const i = c + (d % 2 ? 1 : -1) * Math.ceil(d / 2) * bmDir;
+      if (i < 0 || i >= FRAME_COUNT || !loaded[i] || bitmaps.has(i)) continue;
+      pending++;
       const img = images[i];
       const { s, dx, dy } = cropOf(i, img);
       bitmaps.set(i, "pending");
@@ -365,13 +382,16 @@
     .to("#topShade", { opacity: 1, duration: 4 }, 45)
     .to("#topShade", { opacity: 0, duration: 4 }, 90);
 
-  tl.to("#ch1", { opacity: 0, y: -60, filter: "blur(6px)", duration: 8, ease: "power1.in" }, 7)
+  // phones leave the blur out: a blur that changes is painted again every
+  // frame, which a phone cannot keep up with over a moving film
+  const exitBlur = lightFilm ? {} : { filter: "blur(6px)" };
+  tl.to("#ch1", { opacity: 0, y: -60, ...exitBlur, duration: 8, ease: "power1.in" }, 7)
     .to("#filmShade", { opacity: 0, duration: 14 }, 6);
 
   // chapter 2 — statement, words fill in as you scroll
   tl.fromTo("#ch2", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 5, ease: "power2.out" }, 23)
     .to(words, { opacity: 1, duration: 1.2, stagger: 10 / words.length }, 26)
-    .to("#ch2", { opacity: 0, y: -40, filter: "blur(6px)", duration: 5, ease: "power1.in" }, 41);
+    .to("#ch2", { opacity: 0, y: -40, ...exitBlur, duration: 5, ease: "power1.in" }, 41);
 
   // chapter 3 — ship; its headline leaves through its line masks while the
   // ocean settles, so the frame is clean before it travels into Services
@@ -400,9 +420,12 @@
     const u = p * TOTAL;
     const active = CHAPTERS.reduce((acc, c, i) => (u >= c - 6 ? i : acc), 0);
     dots.forEach((d, i) => d.classList.toggle("is-active", i === active));
-    sticky.dataset.theme = themeForUnit(u);
+    // written only on a change: each write restyles the film, every frame
+    const theme = themeForUnit(u);
+    if (sticky.dataset.theme !== theme) sticky.dataset.theme = theme;
     // the ship chapter's button is only reachable by Tab while it shows
-    ch3.inert = u < 62 || u > 89;
+    const away = u < 62 || u > 89;
+    if (ch3.inert !== away) ch3.inert = away;
     updateNavTheme();
   }
 
@@ -428,7 +451,7 @@
     } else {
       theme = themeForUnit(filmProgress * TOTAL);
     }
-    nav.dataset.theme = theme;
+    if (nav.dataset.theme !== theme) nav.dataset.theme = theme;
     nav.classList.toggle("is-solid", solid);
     updateSpy();
   }
@@ -867,25 +890,39 @@
       gl_FragColor = vec4(mix(col, night, e), mix(a, 1.0, e));
     }`;
 
-  function initClouds(cv, source = CLOUD_FS) {
+  // The shader is compiled in the background (KHR_parallel_shader_compile)
+  // and only asked about once it is done: asking at once makes the page wait
+  // for the compiler, a stall of a tenth of a second or more on a phone,
+  // and this starts while the film is still scrolling.
+  function initClouds(cv, source, onFail) {
     const gl = cv.getContext("webgl", { alpha: true, premultipliedAlpha: true, antialias: false, depth: false });
-    if (!gl) return false;
+    if (!gl) return onFail();
+    const par = gl.getExtension("KHR_parallel_shader_compile");
     const shader = (type, src) => {
       const o = gl.createShader(type);
       gl.shaderSource(o, src);
       gl.compileShader(o);
-      return gl.getShaderParameter(o, gl.COMPILE_STATUS) ? o : null;
+      return o;
     };
-    const vs = shader(gl.VERTEX_SHADER, "attribute vec2 p; void main() { gl_Position = vec4(p, 0.0, 1.0); }");
-    // phones: four noise layers instead of six, at a third of the size
-    const fs = shader(gl.FRAGMENT_SHADER, `#define OCTAVES ${isSmall ? 4 : 6}
-` + source);
-    if (!vs || !fs) return false;
     const prog = gl.createProgram();
-    gl.attachShader(prog, vs);
-    gl.attachShader(prog, fs);
+    gl.attachShader(prog, shader(gl.VERTEX_SHADER, "attribute vec2 p; void main() { gl_Position = vec4(p, 0.0, 1.0); }"));
+    // phones: four noise layers instead of six, at a third of the size
+    gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, `#define OCTAVES ${isSmall ? 4 : 6}
+` + source));
     gl.linkProgram(prog);
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return false;
+    const done = () => !par || gl.getProgramParameter(prog, par.COMPLETION_STATUS_KHR);
+    const wait = () => {
+      if (!done()) return requestAnimationFrame(wait);
+      // without the extension the check below waits for the compiler: it is
+      // left to an idle moment
+      (window.requestIdleCallback || setTimeout)(() => {
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return onFail();
+        start(gl, prog, cv);
+      });
+    };
+    wait();
+  }
+  function start(gl, prog, cv) {
     gl.useProgram(prog);
     // one triangle that covers the canvas
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
@@ -917,14 +954,13 @@
       gl.uniform1f(uRise, (vh - top) / (box.h + vh));
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     });
-    return true;
   }
   if (reduceMotion) {
     bridge.classList.add("no-gl");
     quoteEl.classList.add("no-gl");
   } else {
-    whenNear(bridge, () => { if (!initClouds($("#clouds"))) bridge.classList.add("no-gl"); });
-    whenNear(quoteEl, () => { if (!initClouds($("#quoteClouds"), QUOTE_CLOUD_FS)) quoteEl.classList.add("no-gl"); });
+    whenNear(bridge, () => initClouds($("#clouds"), CLOUD_FS, () => bridge.classList.add("no-gl")));
+    whenNear(quoteEl, () => initClouds($("#quoteClouds"), QUOTE_CLOUD_FS, () => quoteEl.classList.add("no-gl")));
   }
 
   await yieldToMain();
@@ -1366,8 +1402,18 @@
     cargo.style.opacity = opacity;
   }
 
+  // both run on every tick but depend only on the scroll: when the page has
+  // not moved since the last tick there is nothing to do (a refresh clears
+  // the record, as the layout under them may have changed)
+  const lastAt = { cargo: NaN, atlas: NaN };
+  const moved = (k) => {
+    const at = window.scrollY + window.innerHeight * 1e6;
+    if (at === lastAt[k]) return false;
+    lastAt[k] = at;
+    return true;
+  };
   function updateCargo() {
-    if (!routes[0].L) return;
+    if (!routes[0].L || !moved("cargo")) return;
     const vh = window.innerHeight, sy = window.scrollY;
     let shown = false;
     routes.forEach((r, i) => {
@@ -1440,7 +1486,7 @@
 
   if (!reduceMotion) {
     layoutRoutes();
-    ScrollTrigger.addEventListener("refresh", () => { layoutRoutes(); updateCargo(); });
+    ScrollTrigger.addEventListener("refresh", () => { layoutRoutes(); lastAt.cargo = NaN; updateCargo(); });
     gsap.ticker.add(updateCargo);
   } else {
     layoutServices();
@@ -1631,6 +1677,7 @@
   }
 
   function updateAtlas() {
+    if (!moved("atlas")) return;
     const sy = window.scrollY, vhWin = window.innerHeight;
     // the floating WhatsApp button would sit on the answer card: the form
     // at the end of the journey offers WhatsApp instead
@@ -1745,7 +1792,7 @@
   if (!reduceMotion) {
     layoutAtlas();
     layoutRoutes(); // route 3 needs the atlas layout
-    ScrollTrigger.addEventListener("refresh", () => { layoutAtlas(); atlas.q = -2; updateAtlas(); layoutRoutes(); updateCargo(); });
+    ScrollTrigger.addEventListener("refresh", () => { layoutAtlas(); atlas.q = -2; lastAt.atlas = lastAt.cargo = NaN; updateAtlas(); layoutRoutes(); updateCargo(); });
     gsap.ticker.add(updateAtlas);
   }
 
