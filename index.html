@@ -13,23 +13,15 @@
   <meta name="theme-color" content="#101a25" />
   <link rel="preload" href="assets/fonts/dm-sans-400-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/fonts/dm-sans-500-latin.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" as="image" href="frames/f_001.webp" />
-  <link rel="stylesheet" href="styles.css?v=20261016-20" />
+  <link rel="preload" as="image" href="frames/f_001.webp" media="(min-width: 900px)" fetchpriority="high" />
+  <link rel="preload" as="fetch" href="frames-m/f_001.webp" media="(max-width: 899px)" crossorigin="anonymous" fetchpriority="high" />
+  <link rel="stylesheet" href="styles.css?v=20261016-25" />
   <script type="application/ld+json">
   {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How long does a shipment take?", "acceptedAnswer": {"@type": "Answer", "text": "Land freight inside Egypt usually arrives in 1 to 3 working days. Sea freight depends on the route: about 5 to 12 days across the Mediterranean and 25 to 35 days from Asia. Air freight is usually 2 to 5 days door to door. Every quote states the transit time for your route."}}, {"@type": "Question", "name": "Will I know where my cargo is?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Your operator sends an update by WhatsApp or email at each step: pickup, departure, arrival, customs release and delivery. You can also call at any time during working hours."}}, {"@type": "Question", "name": "Which documents do I need?", "acceptedAnswer": {"@type": "Answer", "text": "For most international shipments: a commercial invoice, a packing list, the bill of lading or air waybill, and a certificate of origin. Imports into Egypt also need an ACID number. We send you a checklist for your shipment with the quote."}}, {"@type": "Question", "name": "Can you register the ACID number for me?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Our customs team handles the ACID registration with your supplier before the goods are shipped, so the cargo is not held at the port."}}, {"@type": "Question", "name": "What can't you ship?", "acceptedAnswer": {"@type": "Answer", "text": "Weapons, narcotics, counterfeit goods and any item banned by Egyptian customs or by the destination country. Some dangerous goods, such as batteries, chemicals and flammable liquids, can travel with the correct classification and packing. Tell us what the cargo is and we confirm before you book."}}, {"@type": "Question", "name": "Is my cargo insured?", "acceptedAnswer": {"@type": "Answer", "text": "Carrier liability is limited by law and rarely covers the full value of the goods. We recommend cargo insurance for the full invoice value, and we can arrange it for you. The premium is a small percentage of the cargo value and is shown on the quote."}}, {"@type": "Question", "name": "What happens if goods are damaged?", "acceptedAnswer": {"@type": "Answer", "text": "Take photos and note the damage on the delivery receipt before you sign. Then send the photos to your operator within 3 days. We open the claim with the insurer and follow it until it is settled."}}, {"@type": "Question", "name": "How do I pay?", "acceptedAnswer": {"@type": "Answer", "text": "By bank transfer in Egyptian pounds or US dollars. New customers pay before dispatch. Regular customers can apply for monthly invoicing with agreed credit terms."}}, {"@type": "Question", "name": "Are there hidden charges?", "acceptedAnswer": {"@type": "Answer", "text": "No. The quote lists every charge: freight, port and terminal fees, customs and delivery. Duties and taxes set by the government are shown separately and passed on at cost."}}]}
   </script>
 </head>
 <body>
 
-  <!-- Preloader -->
-  <div class="loader" id="loader" aria-hidden="true">
-    <div class="loader__inner">
-      <svg class="logo-mark loader__mark" viewBox="0 0 40 24" aria-hidden="true"><use href="#mark" /></svg>
-      <span class="loader__word">rockslink</span>
-      <div class="loader__bar"><span id="loaderBar"></span></div>
-      <span class="loader__pct" id="loaderPct">0</span>
-    </div>
-  </div>
 
   <!-- SVG sprite: rockslink mark (two interlocking links) -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -154,10 +146,10 @@
       <div class="svc-track" id="svcTrack">
         <div class="svc-frame" id="svcFrame">
           <div class="svc-bg" aria-hidden="true">
-            <img class="svc-bg__img" src="assets/services/map-bg.webp" alt="" width="1672" height="941" decoding="async" />
+            <img class="svc-bg__img" src="assets/services/map-bg.webp" alt="" width="1672" height="941" decoding="async" loading="lazy" />
             <canvas class="svc-bg__light" id="svcLight"></canvas>
           </div>
-          <svg class="svc-route" id="svcRoute" aria-hidden="true">
+          <svg class="svc-route" id="svcRoute" width="0" height="0" aria-hidden="true">
             <g class="svc-route__links"></g>
             <path class="route__ahead" /><path class="route__under" /><path class="route__done" />
             <g class="svc-route__nodes"></g>
@@ -238,7 +230,7 @@
       <div class="atlas__pin" id="atlasPin" style="--n: 9">
         <div class="atlas__stage" id="atlasStage">
           <div class="atlas__world" id="atlasWorld" aria-hidden="true">
-            <img class="atlas__map" src="assets/atlas/map.webp?v=2" srcset="assets/atlas/map-m.webp?v=2 2500w, assets/atlas/map.webp?v=2 5000w" sizes="2500px" width="2500" height="1450" alt="" decoding="async" loading="lazy" />
+            <img class="atlas__map" data-src="assets/atlas/map.webp?v=2" data-srcset="assets/atlas/map-m.webp?v=2 2500w, assets/atlas/map.webp?v=2 5000w" sizes="2500px" width="2500" height="1450" alt="" decoding="async" loading="lazy" />
             <svg class="atlas__routes" id="atlasRoutes" viewBox="0 0 2500 1450">
               <defs>
                 <radialGradient id="portGlow">
@@ -457,9 +449,9 @@
     <!-- The two shipment routes the marker follows (drawn by main.js):
          the Rockslink container on the ship -> Services, and the form -> the
          Rockslink mark in the quote. -->
-    <svg class="route" id="route1" aria-hidden="true"><path class="route__ahead" /><path class="route__under" /><path class="route__done" /><circle class="route__node route__node--from" r="5" /></svg>
-    <svg class="route" id="route3" aria-hidden="true"><path class="route__ahead" /><path class="route__under" /><path class="route__done" /></svg>
-    <svg class="route" id="route2" aria-hidden="true"><path class="route__ahead" /><path class="route__under" /><path class="route__done" /></svg>
+    <svg class="route" id="route1" width="0" height="0" aria-hidden="true"><path class="route__ahead" /><path class="route__under" /><path class="route__done" /><circle class="route__node route__node--from" r="5" /></svg>
+    <svg class="route" id="route3" width="0" height="0" aria-hidden="true"><path class="route__ahead" /><path class="route__under" /><path class="route__done" /></svg>
+    <svg class="route" id="route2" width="0" height="0" aria-hidden="true"><path class="route__ahead" /><path class="route__under" /><path class="route__done" /></svg>
   </main>
 
   <!-- The shipment marker: the container on its ring (drawn by main.js). Its front-bottom corner sits on the route. -->
@@ -504,9 +496,9 @@
     <span>WhatsApp</span>
   </a>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
-  <script src="main.js?v=20261016-17"></script>
+  <script src="assets/vendor/gsap-3.12.5.min.js" defer></script>
+  <script src="assets/vendor/ScrollTrigger-3.12.5.min.js" defer></script>
+  <script src="assets/vendor/lenis-1.1.13.min.js" defer></script>
+  <script src="main.js?v=20261016-30" defer></script>
 </body>
 </html>

@@ -1,7 +1,28 @@
-(() => {
+(async () => {
   "use strict";
 
   gsap.registerPlugin(ScrollTrigger);
+  // re-measuring is driven from here (resize, load, fonts), once each
+  ScrollTrigger.config({ autoRefreshEvents: "visibilitychange" });
+
+  // Start-up runs in steps: the film and the hero first, then each section
+  // below them in its own task, handing the browser a turn in between, so
+  // the page answers at once instead of after one long block of work.
+  // set something up only once the page has scrolled near it (WebGL decks
+  // and the map light cost nothing until then)
+  const whenNear = (el, fn) => {
+    if (!("IntersectionObserver" in window)) return fn();
+    const io = new IntersectionObserver((entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      io.disconnect();
+      fn();
+    }, { rootMargin: "150% 0px 150% 0px" });
+    io.observe(el);
+  };
+  const yieldToMain = () => new Promise((resolve) => {
+    if (window.scheduler && scheduler.yield) scheduler.yield().then(resolve);
+    else setTimeout(resolve, 0);
+  });
 
   /* ------------------------------------------------------------------
    * Config
@@ -38,9 +59,6 @@
   const film = $("#film");
   const sticky = film.querySelector(".film__sticky");
   const nav = $("#nav");
-  const loader = $("#loader");
-  const loaderBar = $("#loaderBar");
-  const loaderPct = $("#loaderPct");
   const railFill = $("#railFill");
   const dots = [...document.querySelectorAll("#dots span")];
   const footer = document.querySelector(".footer");
@@ -53,6 +71,25 @@
   const quoteEl = document.getElementById("quote");
   const quoteLogo = document.getElementById("quoteLogo");
   let filmProgress = 0;
+
+  // Page positions of the sections, measured once per layout (load, refresh,
+  // real resizes). Scroll code works them out from scrollY instead of asking
+  // the browser for element positions every frame, which forced a fresh
+  // style and layout pass after each write (dozens a frame on a phone).
+  const pageTop = (el) => el.getBoundingClientRect().top + window.scrollY;
+  const geo = { filmBottom: 0, svcTop: 0, svcBottom: 0, bridgeTop: 0, faqTop: 0, contactTop: 0, quoteTop: 0, footerTop: 0 };
+  function measureGeo() {
+    geo.filmBottom = pageTop(film) + film.offsetHeight;
+    geo.bridgeTop = pageTop(bridge);
+    geo.svcTop = pageTop(svcEl);
+    geo.svcBottom = geo.svcTop + svcEl.offsetHeight;
+    geo.faqTop = pageTop(faqSection);
+    // the contact block is sticky: its place in the page is just above the
+    // dwell spacer that follows it
+    geo.contactTop = pageTop(document.querySelector(".atlas__dwell")) - contactSection.offsetHeight;
+    geo.quoteTop = pageTop(quoteEl);
+    geo.footerTop = pageTop(footer);
+  }
   let atlasEntry = null; // set by the atlas: Rotterdam's screen point as the map takes over
 
   document.getElementById("year").textContent = new Date().getFullYear();
@@ -89,7 +126,7 @@
   });
   if (!seen.has(FRAME_COUNT - 1)) order.splice(1, 0, FRAME_COUNT - 1);
 
-  const loadFrame = (i) =>
+  const loadFrame = (i) => useBitmaps ? loadFrameData(i) :
     new Promise((resolve) => {
       const img = new Image();
       img.decoding = "async";
@@ -105,11 +142,28 @@
       img.src = frameSrc(i);
     });
 
+  // phones keep each frame as its file data: the bitmap made from it is
+  // decoded on a background thread (an <img> would be decoded on the main
+  // thread, mid-scroll)
+  const loadFrameData = (i) =>
+    fetch(frameSrc(i))
+      .then((r) => (r.ok ? r.blob() : Promise.reject()))
+      .then((blob) => {
+        images[i] = blob;
+        loaded[i] = 1;
+      })
+      .catch(() => {})
+      .then(() => {
+        loadedCount++;
+        onProgress();
+        if (loaded[i] && (i === currentFrame || nearestLoaded(currentFrame) === i)) render(true);
+      });
+
   // once the coarse pass is in, the finer frames only load while the film
   // is on screen or close to it: a visitor who has skipped past it does not
   // download the rest (they resume if they scroll back up)
   const COARSE = Math.ceil(FRAME_COUNT / 16) + 1;
-  const nearFilm = () => film.getBoundingClientRect().bottom > -window.innerHeight * 1.5;
+  const nearFilm = () => geo.filmBottom - window.scrollY > -window.innerHeight * 1.5;
   const until = (ok) => new Promise((resolve) => {
     const check = () => (ok() ? resolve() : setTimeout(check, 400));
     check();
@@ -119,7 +173,8 @@
     const worker = async () => {
       while (next < order.length) {
         if (next >= COARSE && !nearFilm()) await until(nearFilm);
-        if (next < order.length) await loadFrame(order[next++]);
+        const i = order[next++];
+        if (i !== undefined && !loaded[i]) await loadFrame(i);
       }
     };
     await Promise.all(Array.from({ length: concurrency }, worker));
@@ -129,8 +184,6 @@
   let siteShown = false;
   function onProgress() {
     const p = Math.min(1, loadedCount / order.length);
-    loaderBar.style.transform = `scaleX(${p})`;
-    loaderPct.textContent = Math.round(p * 100);
     // Reveal once the coarse pass (every 16th frame, enough to scrub the
     // whole film) is in and the loader has had a moment; the rest fills in
     // behind, coarse to fine.
@@ -146,14 +199,60 @@
   let cw = 0, ch = 0;
 
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // phones draw the film at 1.5x at most: sharp enough for a moving film,
+    // and far fewer pixels to fill each frame
+    const dpr = Math.min(window.devicePixelRatio || 1, lightFilm ? 1.5 : 2);
     cw = Math.round(sticky.clientWidth * dpr);
     ch = Math.round(sticky.clientHeight * dpr);
     canvas.width = cw;
     canvas.height = ch;
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
+    dropBitmaps();
     render(true);
+  }
+
+  // Phones: a frame is decoded the moment it is drawn, on the main thread,
+  // which stalls the scroll. So the frames around the playhead are decoded
+  // ahead, off the main thread (createImageBitmap), already cropped and
+  // scaled to the canvas; drawing one is then a plain copy. Only a small
+  // window is kept, so memory stays low.
+  const useBitmaps = lightFilm && "createImageBitmap" in window;
+  const BM_SPAN = 12;
+  const bitmaps = new Map(); // frame -> ImageBitmap, or "pending"
+  let bmGen = 0;
+  function dropBitmaps() {
+    bmGen++;
+    bitmaps.forEach((b) => b && b.close && b.close());
+    bitmaps.clear();
+  }
+  function cropOf(idx, img) {
+    // file data (phones) carries no size: the phone frames are 1280 x 720
+    const iw = img.naturalWidth || 1280, ih = img.naturalHeight || 720;
+    const s = Math.max(cw / iw, ch / ih);
+    const dw = iw * s, dh = ih * s;
+    const dx = Math.min(0, Math.max(cw - dw, cw / 2 - dw * focusX(idx)));
+    return { s, dx, dy: (ch - dh) / 2, dw, dh };
+  }
+  function primeBitmaps(c) {
+    if (!useBitmaps || !cw) return;
+    bitmaps.forEach((b, i) => {
+      if (Math.abs(i - c) > BM_SPAN * 1.5) { if (b && b.close) b.close(); bitmaps.delete(i); }
+    });
+    const gen = bmGen;
+    for (let i = Math.max(0, c - BM_SPAN); i <= Math.min(FRAME_COUNT - 1, c + BM_SPAN); i++) {
+      if (!loaded[i] || bitmaps.has(i)) continue;
+      const img = images[i];
+      const { s, dx, dy } = cropOf(i, img);
+      bitmaps.set(i, "pending");
+      createImageBitmap(img, -dx / s, -dy / s, cw / s, ch / s, { resizeWidth: cw, resizeHeight: ch, resizeQuality: "medium" })
+        .then((bm) => {
+          if (gen !== bmGen || bitmaps.get(i) !== "pending") { bm.close(); return; }
+          bitmaps.set(i, bm);
+          if (i === nearestLoaded(currentFrame) && drawnFrame !== -2 - i) render(true);
+        })
+        .catch(() => bitmaps.delete(i));
+    }
   }
 
   function nearestLoaded(i) {
@@ -184,16 +283,34 @@
 
   function render(force) {
     const idx = nearestLoaded(currentFrame);
-    if (idx < 0 || (!force && idx === drawnFrame)) return;
-    const img = images[idx];
-    const iw = img.naturalWidth, ih = img.naturalHeight;
+    if (idx < 0) return;
+    primeBitmaps(idx);
+    let bm = bitmaps.get(idx);
+    let ready = bm && bm !== "pending";
+    if (useBitmaps && !ready) {
+      // not decoded yet: show the nearest frame that is, until it is
+      for (let d = 1; d <= BM_SPAN && !ready; d++) {
+        for (const j of [idx - d, idx + d]) {
+          const b = bitmaps.get(j);
+          if (b && b !== "pending") { bm = b; ready = true; break; }
+        }
+      }
+      if (!ready) return;
+      if (bm !== bitmaps.get(idx)) { ctx.drawImage(bm, 0, 0); drawnFrame = -1; return; }
+    }
+    // drawnFrame is -2 - idx while the plain image stands in for a bitmap
+    if (!force && (idx === drawnFrame || (!ready && drawnFrame === -2 - idx))) return;
+    if (ready) {
+      ctx.drawImage(bm, 0, 0);
+      drawnFrame = idx;
+      return;
+    }
     // cover framing with the focal point
-    const s = Math.max(cw / iw, ch / ih);
-    const dw = iw * s, dh = ih * s;
-    const dx = Math.min(0, Math.max(cw - dw, cw / 2 - dw * focusX(idx)));
+    const img = images[idx];
+    const { dx, dy, dw, dh } = cropOf(idx, img);
     ctx.clearRect(0, 0, cw, ch);
-    ctx.drawImage(img, dx, (ch - dh) / 2, dw, dh);
-    drawnFrame = idx;
+    ctx.drawImage(img, dx, dy, dw, dh);
+    drawnFrame = useBitmaps ? -2 - idx : idx;
   }
 
   /* ------------------------------------------------------------------
@@ -292,10 +409,11 @@
   function updateNavTheme() {
     if (document.body.classList.contains("menu-open")) return;
     let theme, solid = false;
-    const svc = svcEl.getBoundingClientRect();
-    const q = quoteEl.getBoundingClientRect();
+    const sy = window.scrollY;
+    const svc = { top: geo.svcTop - sy };
+    const q = { top: geo.quoteTop - sy };
     const navLine = 40;
-    if (footer.getBoundingClientRect().top < 60) {
+    if (geo.footerTop - sy < 60) {
       theme = "light";
     } else if (q.top + window.innerHeight * 0.26 < navLine) {
       // the closing quote has darkened to night: white links on it
@@ -304,7 +422,7 @@
       // light Services, the map, questions and form until the quote
       theme = "dark";
       solid = true;
-    } else if (svc.top < navLine || bridge.getBoundingClientRect().top < window.innerHeight * 0.6) {
+    } else if (svc.top < navLine || geo.bridgeTop - sy < window.innerHeight * 0.6) {
       // the light cloud deck (it starts 60vh above the bridge): dark links on it
       theme = "dark";
     } else {
@@ -317,17 +435,17 @@
 
   // highlight the nav link of the section in view
   function updateSpy() {
-    const line = window.innerHeight * 0.4;
+    const line = window.innerHeight * 0.4 + window.scrollY;
     let current;
-    if (contactSection.getBoundingClientRect().top < line) current = "contact";
-    else if (faqSection.getBoundingClientRect().top < line) current = "faq";
-    else if (svcEl.getBoundingClientRect().top < line) current = "services";
+    if (geo.contactTop < line) current = "contact";
+    else if (geo.faqTop < line) current = "faq";
+    else if (geo.svcTop < line) current = "services";
     else current = filmProgress * TOTAL >= CHAPTERS[1] - 8 ? "about" : "top";
     spyLinks.forEach((l) => l.classList.toggle("is-active", l.dataset.spy === current));
   }
+  // (Lenis scrolls the window itself, so one scroll listener covers both)
   window.addEventListener("scroll", updateNavTheme, { passive: true });
-  if (lenis) lenis.on("scroll", updateNavTheme);
-  ScrollTrigger.addEventListener("refresh", updateNavTheme);
+  ScrollTrigger.addEventListener("refresh", () => { measureGeo(); updateNavTheme(); });
 
   // skip intro: straight to Services; it leaves with the last chapter
   const skipBtn = $("#skipIntro");
@@ -338,15 +456,14 @@
   const toTop = $("#toTop");
   toTop.addEventListener("click", () => scrollTo(0, { duration: 2.2 }));
   function updateQuoteFab() {
-    const vh = window.innerHeight;
-    const afterFilm = film.getBoundingClientRect().bottom < vh * 0.5;
-    const formSoon = contactSection.getBoundingClientRect().top < vh * 0.9;
+    const vh = window.innerHeight, sy = window.scrollY;
+    const afterFilm = geo.filmBottom - sy < vh * 0.5;
+    const formSoon = geo.contactTop - sy < vh * 0.9;
     quoteFab.classList.toggle("is-on", afterFilm && !formSoon);
     toTop.classList.toggle("is-on", afterFilm && formSoon);
     skipBtn.classList.toggle("is-gone", filmProgress > 0.8);
   }
   window.addEventListener("scroll", updateQuoteFab, { passive: true });
-  if (lenis) lenis.on("scroll", updateQuoteFab);
 
   // next button: jump to the following chapter, then into Services
   $("#nextBtn").addEventListener("click", () => {
@@ -359,27 +476,16 @@
   /* ------------------------------------------------------------------
    * Intro + section reveals
    * ---------------------------------------------------------------- */
-  gsap.set(".hero__title .line > span, .hero__sub span", { yPercent: 110 });
+  // (the hero rises in by CSS; no loading screen holds the page back)
   gsap.set([nav, ".film__sticky .next", ".film__sticky .dots", ".rail"], { opacity: 0 });
 
   function showSite() {
     siteShown = true;
-    loader.classList.add("is-done");
     document.body.classList.remove("is-loading");
     if (lenis) lenis.start();
-    ScrollTrigger.refresh();
-    // arriving from another page with a section in the link (the footer of
-    // the legal pages): go straight there
-    const hash = location.hash;
-    if (hash && hash !== "#top") {
-      const target = hash === "#about" ? unitToScroll(CHAPTERS[1] + 4) : document.querySelector(hash);
-      if (target) requestAnimationFrame(() => scrollTo(target, { immediate: true }));
-    }
 
-    gsap.timeline({ delay: 0.35, defaults: { ease: "expo.out" } })
-      .to(".hero__title .line > span", { yPercent: 0, duration: 1.6, stagger: 0.12 })
-      .to(".hero__sub span", { yPercent: 0, duration: 1.4 }, "-=1.2")
-      .to(nav, { opacity: 1, duration: 1.2 }, "-=1.3")
+    gsap.timeline({ delay: 0.2, defaults: { ease: "expo.out" } })
+      .to(nav, { opacity: 1, duration: 1.2 })
       .to([".film__sticky .next", ".film__sticky .skip", ".film__sticky .dots", ".rail", ".wa-fab"], { opacity: 1, duration: 1 }, "-=1");
   }
 
@@ -425,6 +531,33 @@
     });
   });
 
+  // first paint: the film and the hero are ready; everything below the
+  // film is set up in the steps that follow
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  window.scrollTo(0, 0);
+  resize();
+  ScrollTrigger.refresh(); // the film's own measure, before the first paint
+  measureGeo();
+  // the first frame now; the rest once the page itself has loaded, so the
+  // film never competes with the first screen for the connection
+  // the rest start on the first sign of the visitor moving (scroll, touch,
+  // a key) or a moment after the page has loaded, whichever comes first
+  loadFrame(0).then(() => {
+    let started = false;
+    const go = () => {
+      if (started) return;
+      started = true;
+      ["scroll", "wheel", "touchstart", "pointerdown", "keydown"].forEach((t) => window.removeEventListener(t, go));
+      runQueue();
+    };
+    ["scroll", "wheel", "touchstart", "pointerdown", "keydown"].forEach((t) => window.addEventListener(t, go, { passive: true }));
+    const later = () => setTimeout(go, 2500);
+    if (document.readyState === "complete") later();
+    else window.addEventListener("load", later, { once: true });
+  });
+  showSite();
+  await yieldToMain();
+
   /* ------------------------------------------------------------------
    * Motion system
    * One vocabulary for everything after the film. Every entrance is built
@@ -454,6 +587,8 @@
     build(t);
     ScrollTrigger.create({ trigger, start, once: true, onEnter: () => t.play() });
   }
+
+  await yieldToMain();
 
   /* ------------------------------------------------------------------
    * Services: one held screen over the dotted world map. The route, the
@@ -586,8 +721,8 @@
     });
     gsap.ticker.add((time) => {
       if (!light.ready) return;
-      const r = cv.getBoundingClientRect();
-      if (r.bottom < 0 || r.top > window.innerHeight) return;
+      const sy = window.scrollY;
+      if (geo.svcBottom - sy < 0 || geo.svcTop - sy > window.innerHeight) return;
       if (light.k < 0.002) {
         if (!light.drawn) return;
         gl.clear(gl.COLOR_BUFFER_BIT); // let the plain map show, then rest
@@ -600,7 +735,9 @@
       light.drawn = true;
     });
   }
-  if (!reduceMotion && !isSmall) initMapLight($("#svcLight"));
+  if (!reduceMotion && !isSmall) whenNear(svcTrack, () => initMapLight($("#svcLight")));
+
+  await yieldToMain();
 
   /* ------------------------------------------------------------------
    * Cloud deck (WebGL, no library): one full-canvas fragment shader with
@@ -631,7 +768,7 @@
     float fbm(vec2 p) {
       float v = 0.0, a = 0.5;
       mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
-      for (int i = 0; i < 6; i++) { v += a * noise(p); p = m * p; a *= 0.5; }
+      for (int i = 0; i < OCTAVES; i++) { v += a * noise(p); p = m * p; a *= 0.5; }
       return v;
     }
     void main() {
@@ -691,7 +828,7 @@
     float fbm(vec2 p) {
       float v = 0.0, a = 0.5;
       mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
-      for (int i = 0; i < 6; i++) { v += a * noise(p); p = m * p; a *= 0.5; }
+      for (int i = 0; i < OCTAVES; i++) { v += a * noise(p); p = m * p; a *= 0.5; }
       return v;
     }
     void main() {
@@ -740,7 +877,9 @@
       return gl.getShaderParameter(o, gl.COMPILE_STATUS) ? o : null;
     };
     const vs = shader(gl.VERTEX_SHADER, "attribute vec2 p; void main() { gl_Position = vec4(p, 0.0, 1.0); }");
-    const fs = shader(gl.FRAGMENT_SHADER, source);
+    // phones: four noise layers instead of six, at a third of the size
+    const fs = shader(gl.FRAGMENT_SHADER, `#define OCTAVES ${isSmall ? 4 : 6}
+` + source);
     if (!vs || !fs) return false;
     const prog = gl.createProgram();
     gl.attachShader(prog, vs);
@@ -757,7 +896,7 @@
     const uRes = gl.getUniformLocation(prog, "uRes");
     const uTime = gl.getUniformLocation(prog, "uTime");
     const uRise = gl.getUniformLocation(prog, "uRise");
-    const q = isSmall ? 0.4 : 0.5;
+    const q = isSmall ? 0.32 : 0.5;
     const size = () => {
       cv.width = Math.max(1, Math.round(cv.clientWidth * q));
       cv.height = Math.max(1, Math.round(cv.clientHeight * q));
@@ -766,18 +905,29 @@
     };
     size();
     window.addEventListener("resize", size);
+    const box = { top: 0, h: 1 };
+    const place = () => { box.top = pageTop(cv); box.h = cv.clientHeight; };
+    place();
+    ScrollTrigger.addEventListener("refresh", place);
     gsap.ticker.add((time) => {
-      const r = cv.getBoundingClientRect();
       const vh = window.innerHeight;
-      if (r.bottom < 0 || r.top > vh) return;
+      const top = box.top - window.scrollY;
+      if (top + box.h < 0 || top > vh) return;
       gl.uniform1f(uTime, time);
-      gl.uniform1f(uRise, (vh - r.top) / (r.height + vh));
+      gl.uniform1f(uRise, (vh - top) / (box.h + vh));
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     });
     return true;
   }
-  if (reduceMotion || !initClouds($("#clouds"))) bridge.classList.add("no-gl");
-  if (reduceMotion || !initClouds($("#quoteClouds"), QUOTE_CLOUD_FS)) quoteEl.classList.add("no-gl");
+  if (reduceMotion) {
+    bridge.classList.add("no-gl");
+    quoteEl.classList.add("no-gl");
+  } else {
+    whenNear(bridge, () => { if (!initClouds($("#clouds"))) bridge.classList.add("no-gl"); });
+    whenNear(quoteEl, () => { if (!initClouds($("#quoteClouds"), QUOTE_CLOUD_FS)) quoteEl.classList.add("no-gl"); });
+  }
+
+  await yieldToMain();
 
   /* ------------------------------------------------------------------
    * Quote: the invitation rises in once, under the mark.
@@ -787,6 +937,8 @@
     motion.heading(t, "#quoteTitle .line > span", 0.08);
     motion.para(t, ".quote__copy .btn", 0.35);
   }, "top 85%");
+
+  await yieldToMain();
 
   /* ------------------------------------------------------------------
    * The shipment marker, one design everywhere (both page routes and the
@@ -846,6 +998,8 @@
   };
   const BOX_SCALE = 0.95;                      // 67 x 72 -> 64 x 68 px, as in the reference
   const ANCHOR = [44 * BOX_SCALE, 71 * BOX_SCALE]; // the front-bottom corner, on the route
+
+  await yieldToMain();
 
   /* ------------------------------------------------------------------
    * Shipment tracking: the container marker rides two routes. Everything is a pure function of the scroll
@@ -948,7 +1102,9 @@
     const H = Math.max(1, end - top);
     r.top = top;
     r.H = H;
-    r.el.style.top = `${top - docTop(mainEl) - PAD}px`;
+    // placed by transform (in updateCargo), not by top: moving it then is
+    // not a layout shift
+    r.ty = top - docTop(mainEl) - PAD;
     r.el.setAttribute("width", W);
     r.el.setAttribute("height", H + PAD * 2);
     r.el.setAttribute("viewBox", `0 ${-PAD} ${W} ${H + PAD * 2}`);
@@ -1099,7 +1255,8 @@
   function updateServices(place) {
     if (!svc.L) return false;
     const sy = window.scrollY, vh = window.innerHeight;
-    const T = svcFrame.getBoundingClientRect().top; // the frame's top on screen
+    // the frame's top on screen: it scrolls in, is held at 0, then leaves
+    const T = sy < svc.top ? svc.top - sy : Math.min(0, svc.top + svc.run - sy);
     let l, on;
     if (svc.held && sy >= svc.top) {
       // held: one leg per step of scroll, slowing a little at each checkpoint
@@ -1139,7 +1296,7 @@
     // past the end once route 3 has carried the container on to the map
     if (!on || !place || routes[2].passed) return false;
     const [x, y] = svcPointAtLen(l);
-    const sx = svcFrame.getBoundingClientRect().left + x, syc = T + y;
+    const sx = x, syc = T + y; // the frame spans the full width
     if (syc < -120 || syc > vh + 120) return false;
     placePin(sx, syc, 1, 1);
     return true;
@@ -1218,7 +1375,7 @@
       if (!r.L) return;
       // route 1 is held with the film until the film lets go
       const eff = Math.max(sy, r.holdUntil);
-      r.el.style.transform = `translate3d(0, ${sy - eff}px, 0)`;
+      r.el.style.transform = `translate3d(0, ${r.ty + sy - eff}px, 0)`;
       const routeTop = r.top - eff; // route start, on screen
 
       let line, appear;
@@ -1290,6 +1447,8 @@
     window.addEventListener("resize", layoutServices);
   }
 
+  await yieldToMain();
+
   /* ------------------------------------------------------------------
    * FAQ + Contact: the atlas. A plaster relief map of the world held on a
    * sticky stage, with the shipment route from the contact reference:
@@ -1315,6 +1474,12 @@
    *   home (HOME_VH) and eases to a stop at Alexandria.
    * ---------------------------------------------------------------- */
   const atlasPin = $("#atlasPin");
+  // the relief map image arrives only as the FAQ comes near
+  whenNear(atlasPin, () => {
+    const img = document.querySelector(".atlas__map");
+    if (img.dataset.srcset) { img.srcset = img.dataset.srcset; img.src = img.dataset.src; }
+    document.documentElement.classList.add("map-ready");
+  });
   const atlasStage = $("#atlasStage");
   const atlasWorld = $("#atlasWorld");
   const atlasVeil = $("#atlasVeil");
@@ -1593,6 +1758,8 @@
     motion.para(t, [".atlas__index", ".atlas__skip"], 0.3);
   }, window.innerWidth < 720 ? "top 2%" : "top 35%");
 
+  await yieldToMain();
+
   /* ------------------------------------------------------------------
    * Contact: the invitation first, then the details and the form together.
    * ---------------------------------------------------------------- */
@@ -1603,6 +1770,8 @@
     motion.para(t, ".enquiry", 0.35);
     motion.cards(t, [".info > div", ".office-card"], 0.42);
   }, "top 70%");
+
+  await yieldToMain();
 
   /* ------------------------------------------------------------------
    * Footer: it simply follows the quote, full width. Only the wordmark
@@ -1617,6 +1786,8 @@
       scrollTrigger: { trigger: ".footer__word", start: "top 96%", toggleActions: "play none none reverse" },
     });
   }
+
+  await yieldToMain();
 
   /* ------------------------------------------------------------------
    * Enquiry form
@@ -1718,16 +1889,48 @@
     setStatus("WhatsApp has opened with your enquiry. Press send there to reach our team.", "ok");
   });
 
+  await yieldToMain();
+
   /* ------------------------------------------------------------------
    * Boot
    * ---------------------------------------------------------------- */
-  document.body.classList.add("is-loading");
-  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
-  window.scrollTo(0, 0);
-  resize();
-  window.addEventListener("resize", () => { resize(); ScrollTrigger.refresh(); });
-  // layout settles once fonts and images arrive: re-measure every trigger
-  window.addEventListener("load", () => ScrollTrigger.refresh());
-  if (document.fonts) document.fonts.ready.then(() => ScrollTrigger.refresh());
-  runQueue();
+  // a phone's address bar showing or hiding changes the height a little:
+  // only a real change of width or height re-lays out the page
+  let lastW = window.innerWidth, lastH = window.innerHeight;
+  window.addEventListener("resize", () => {
+    const w = window.innerWidth, h = window.innerHeight;
+    if (w === lastW && Math.abs(h - lastH) < 160) return;
+    lastW = w; lastH = h;
+    resize();
+    ScrollTrigger.refresh();
+  });
+  // layout settles once fonts and images arrive: re-measure every trigger,
+  // once, however many of those arrive together
+  // (one re-measure for all of them, in a quiet moment, and only if the
+  // page has actually changed size since it was last measured: a full
+  // re-measure is the most expensive thing at start-up)
+  const layoutSig = () => [document.documentElement.scrollHeight, window.innerWidth, window.innerHeight, pageTop(svcEl), pageTop(faqSection), pageTop(quoteEl)].map(Math.round).join(",");
+  let measuredSig = layoutSig();
+  ScrollTrigger.addEventListener("refresh", () => { measuredSig = layoutSig(); });
+  let refreshTimer = 0;
+  const settle = () => {
+    clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(() => {
+      const run = () => { if (layoutSig() !== measuredSig) ScrollTrigger.refresh(); };
+      if ("requestIdleCallback" in window) requestIdleCallback(run, { timeout: 1500 });
+      else run();
+    }, 150);
+  };
+  window.addEventListener("load", settle);
+  if (document.fonts) document.fonts.ready.then(settle);
+  // every section is in place: measure once for all of them (together with
+  // the load and font re-measure, if those are still to come)
+  settle();
+  // arriving from another page with a section in the link (the footer of
+  // the legal pages): go straight there
+  const hash = location.hash;
+  if (hash && hash !== "#top") {
+    const target = hash === "#about" ? unitToScroll(CHAPTERS[1] + 4) : document.querySelector(hash);
+    if (target) requestAnimationFrame(() => scrollTo(target, { immediate: true }));
+  }
 })();

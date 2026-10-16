@@ -77,7 +77,7 @@ HEAD = '''<!doctype html>
   <meta name="theme-color" content="#101a25" />
   <link rel="preload" href="{root}assets/fonts/dm-sans-400-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="{root}assets/fonts/dm-sans-500-latin.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="{root}styles.css?v=20261016-20" />
+  <link rel="stylesheet" href="{root}styles.css?v=20261016-25" />
 </head>'''
 
 YEAR = '''<button type="button" class="to-top" id="toTop" aria-label="Back to top"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" /></svg></button>
@@ -122,7 +122,7 @@ PRIVACY = {
             "This website does not use cookies. It has no analytics and no advertising trackers, and it does not store anything in your browser.",
         ]),
         ("services", "Services this website loads", [
-            "The fonts and images are served from this website itself. To show the page, your browser also downloads code libraries from cdnjs (Cloudflare) and jsDelivr. Like any request on the web, these two services receive your IP address and basic browser details.",
+            "Everything this website shows, including its fonts and code libraries, is served from the website itself. It loads nothing from other companies' servers.",
             "The server that hosts this website may record standard request details, such as your IP address, the time and the page requested, to keep the site running and secure.",
         ]),
         ("keep", "How long we keep it", [

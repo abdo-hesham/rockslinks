@@ -9,6 +9,10 @@
 @font-face { font-family: "DM Sans"; font-style: normal; font-weight: 600; font-display: swap; src: url("assets/fonts/dm-sans-600-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: "DM Sans"; font-style: normal; font-weight: 600; font-display: swap; src: url("assets/fonts/dm-sans-600-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 
+/* the stand-in while DM Sans loads, sized to DM Sans's metrics so the text
+   does not move when the real font arrives */
+@font-face { font-family: "DM Sans Fallback"; src: local("Arial"), local("Roboto"), local("Helvetica"); size-adjust: 104.5%; ascent-override: 94.9%; descent-override: 29.7%; line-gap-override: 0%; }
+
 :root {
   --ink: #152333;
   --ink-soft: rgba(23, 34, 47, 0.62);
@@ -19,7 +23,7 @@
   --line: rgba(23, 34, 47, 0.14);
   --gutter: 24px;                        /* side padding (16px below 991px) */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --font: "DM Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font: "DM Sans", "DM Sans Fallback", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --accent: #4f8fd6;                     /* the one live colour: label dots, service tags */
   --night: #101a25;                      /* dark: the cloud band, the quote, the footer, menu */
   /* the light editorial palette: Services, the map, Contact */
@@ -169,8 +173,14 @@ body.menu-open .nav { color: var(--white); }
 .film .chapter a, .film .next { pointer-events: auto; }
 .film__sticky {
   position: sticky; top: 0;
-  height: 100vh; height: 100svh;
+  height: 100vh;
   overflow: hidden;
+  --ui-lift: 0px;
+}
+/* phones: the film runs on under the browser's bottom bar (no white strip
+   behind it); its buttons sit above the bar */
+@supports (height: 100lvh) {
+  .film__sticky { height: 100lvh; --ui-lift: calc(100lvh - 100svh); }
 }
 .film__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .film__shade {
@@ -189,6 +199,13 @@ body.menu-open .nav { color: var(--white); }
   padding: 0 var(--gutter) 0 calc(var(--gutter) + 5vw);
   color: var(--white);
 }
+/* the hero is painted at once at full strength and rises into place (CSS
+   only, so it does not wait for the script) */
+@keyframes heroRise { from { transform: translateY(42%); } }
+.hero__title .line > span, .hero__sub span { animation: heroRise 1.3s var(--ease) 0.1s both; }
+.hero__title .line + .line > span { animation-delay: 0.2s; }
+.hero__sub span { animation-delay: 0.3s; }
+@media (prefers-reduced-motion: reduce) { .hero__title .line > span, .hero__sub span { animation: none; } }
 .hero__title {
   margin: 0;
   font-size: var(--fs-h1);
@@ -261,14 +278,14 @@ body.menu-open .nav { color: var(--white); }
 .rail__track span { display: block; width: 100%; height: 100%; background: rgba(23, 34, 47, 0.55); transform: scaleY(0); transform-origin: top; border-radius: 2px; }
 
 .dots {
-  position: absolute; right: calc(var(--gutter) + 12px); bottom: 104px;
+  position: absolute; right: calc(var(--gutter) + 12px); bottom: calc(104px + var(--ui-lift, 0px));
   display: grid; gap: 7px;
 }
 .dots span { width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: 0.3; transition: opacity 0.4s, transform 0.4s var(--ease); }
 .dots span.is-active { opacity: 1; transform: scale(1.4); }
 
 .next {
-  position: absolute; right: var(--gutter); bottom: 44px;
+  position: absolute; right: var(--gutter); bottom: calc(44px + var(--ui-lift, 0px));
   width: 30px; height: 30px; border-radius: 50%;
   display: grid; place-items: center;
   border: 1px solid currentColor;
@@ -287,7 +304,7 @@ body.menu-open .nav { color: var(--white); }
 /* skip intro: a quiet text button left of the next arrow; leaves with the
    last chapter */
 .skip {
-  position: absolute; right: calc(var(--gutter) + 44px); bottom: 44px;
+  position: absolute; right: calc(var(--gutter) + 44px); bottom: calc(44px + var(--ui-lift, 0px));
   height: 30px; padding: 0 12px;
   font-size: 13px; font-weight: 500; letter-spacing: 0.01em;
   color: var(--white); opacity: 0;
@@ -931,8 +948,9 @@ main { position: relative; }
   .atlas__q h3 { margin-bottom: var(--s-2xs); }
   .atlas__a p { font-size: var(--fs-small); line-height: var(--lh-small); }
   .atlas__steps { top: calc(var(--nav-h) + var(--s-2xs)); transform: none; gap: 0; }
-  .atlas__steps button { width: 18px; height: 18px; }
-  .atlas__steps button::before { inset: 5px; }
+  /* 24 px to tap, the dot itself still small */
+  .atlas__steps button { width: 24px; height: 24px; }
+  .atlas__steps button::before { inset: 8px; }
 }
 
 /* reduced motion: no journey; the questions and the form read as a page */
@@ -981,8 +999,11 @@ main { position: relative; }
 .office-card:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .office-card__map {
   position: relative; flex: none; width: 110px; height: 66px; border-radius: 8px; overflow: hidden;
-  background: #d3dde9 url("assets/atlas/map-m.webp?v=2") -1042px -695px / 2500px auto no-repeat;
+  background: #d3dde9 -1042px -695px / 2500px auto no-repeat;
 }
+/* the map crop arrives with the map itself (main.js adds .map-ready as the
+   FAQ comes near), not with the first screen */
+.map-ready .office-card__map { background-image: url("assets/atlas/map-m.webp?v=2"); }
 .office-card__map::after {
   content: ""; position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%;
   background: #2f7ed8; box-shadow: 0 0 0 2px var(--white), 0 0 0 7px rgba(47, 126, 216, 0.22);
@@ -1094,7 +1115,7 @@ main { position: relative; }
    the left, four short columns of links on the right, and the wordmark
    set huge and barely there along the bottom. Shared by every page
    (tools/build-pages.py writes the markup). */
-.footer { background: var(--night); color: rgba(255, 255, 255, 0.72); padding: 0 var(--gutter); overflow: hidden; }
+.footer { background: var(--night); color: rgba(255, 255, 255, 0.72); padding: 0 var(--gutter); overflow: hidden; content-visibility: auto; contain-intrinsic-size: auto 800px; }
 .footer__top {
   display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap);
   max-width: 1320px; margin: 0 auto;
@@ -1103,7 +1124,7 @@ main { position: relative; }
 }
 .footer__brand { grid-column: 1 / 6; }
 .footer__brand .nav__brand { color: var(--white); }
-.footer__copy { margin: var(--s-l) 0 0; font-size: var(--fs-small); line-height: 1.5; color: rgba(255, 255, 255, 0.45); }
+.footer__copy { margin: var(--s-l) 0 0; font-size: var(--fs-small); line-height: 1.5; color: rgba(255, 255, 255, 0.6); }
 .footer__cols { grid-column: 6 / 13; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-l); }
 .footer__label { margin: 0 0 var(--s-m); font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--white); }
 .footer__cols ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
@@ -1296,8 +1317,8 @@ body.in-atlas .wa-fab { visibility: hidden; }
       linear-gradient(180deg, rgba(10, 20, 32, 0.3) 0%, rgba(10, 20, 32, 0) 22%);
   }
   .rail { display: none; }
-  .dots { right: 26px; bottom: 90px; }
-  .next { right: 16px; bottom: 36px; }
+  .dots { right: 26px; bottom: calc(90px + var(--ui-lift, 0px)); }
+  .next { right: 16px; bottom: calc(36px + var(--ui-lift, 0px)); }
   .field-row { grid-template-columns: 1fr; }
   .enquiry__actions .btn { width: 100%; justify-content: space-between; }
   .enquiry__actions .btn--ghost { justify-content: center; }
