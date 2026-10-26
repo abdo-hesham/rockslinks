@@ -1,5 +1,5 @@
-"""Draw the Rockslink icon set from the mark in assets/favicon.svg (two
-interlocking links, white on navy), supersampled for clean edges.
+"""Draw the Rockslink icon set from assets/favicon.svg (the white R mark on
+navy), rendered large with PyMuPDF and scaled down for clean edges.
 
   favicon.ico            16, 32, 48 px (site root, for browsers and search)
   assets/icon-192.png    web app manifest
@@ -10,36 +10,29 @@ usage: python -I tools/make-icons.py   (from the project root)
 """
 from pathlib import Path
 
-from PIL import Image, ImageDraw
+import fitz
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
-NAVY = (23, 34, 47, 255)    # #17222f, as the SVG
-WHITE = (255, 255, 255, 255)
-SS = 8                      # supersampling
+BIG = 2048                  # render size before scaling down
 
 
-def icon(size, rounded=True):
-    """the SVG's 40 x 40 design at `size` px"""
-    big = size * SS
-    k = big / 40
-    im = Image.new("RGBA", (big, big), (0, 0, 0, 0))
-    d = ImageDraw.Draw(im)
-    if rounded:
-        d.rounded_rectangle([0, 0, big - 1, big - 1], radius=9 * k, fill=NAVY)
-    else:
-        d.rectangle([0, 0, big - 1, big - 1], fill=NAVY)
-    # two pill outlines, stroke 3 centred on the SVG's rect edges
-    w = 3 * k
-    for x in (5, 17):
-        d.rounded_rectangle([(x - 1.5) * k, (13 - 1.5) * k, (x + 18 + 1.5) * k, (27 + 1.5) * k], radius=(7 + 1.5) * k, outline=WHITE, width=round(w))
-    return im.resize((size, size), Image.LANCZOS)
+def master():
+    """the favicon SVG as a BIG x BIG RGB image"""
+    doc = fitz.open(stream=(ROOT / "assets/favicon.svg").read_bytes(), filetype="svg")
+    page = doc[0]
+    k = BIG / page.rect.width
+    pix = page.get_pixmap(matrix=fitz.Matrix(k, k), alpha=False)
+    return Image.frombytes("RGB", (pix.width, pix.height), pix.samples).resize((BIG, BIG), Image.LANCZOS)
 
 
 def main():
+    im = master()
+    icon = lambda size: im.resize((size, size), Image.LANCZOS)
     icon(48).save(ROOT / "favicon.ico", sizes=[(16, 16), (32, 32), (48, 48)])
     icon(192).save(ROOT / "assets/icon-192.png", optimize=True)
     icon(512).save(ROOT / "assets/icon-512.png", optimize=True)
-    icon(180, rounded=False).convert("RGB").save(ROOT / "assets/apple-touch-icon.png", optimize=True)
+    icon(180).save(ROOT / "assets/apple-touch-icon.png", optimize=True)
     print("icons written")
 
 
