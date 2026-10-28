@@ -1124,6 +1124,22 @@ main { position: relative; }
   .office-card { margin-top: 14px; }
 }
 .enquiry__status.is-error { color: #b4442f; }
+/* the 'sent' popup after the enquiry has been emailed */
+.sent {
+  width: min(440px, calc(100vw - 32px)); padding: 36px 32px 30px; border: 0;
+  border-radius: var(--radius-card); background: var(--white); color: var(--ink);
+  text-align: center; box-shadow: 0 30px 80px rgba(10, 20, 32, 0.35);
+}
+.sent::backdrop { background: rgba(10, 20, 32, 0.55); backdrop-filter: blur(4px); }
+.sent[open] { animation: sentIn 0.35s var(--e-out); }
+@keyframes sentIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } }
+.sent__tick { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: rgba(31, 111, 74, 0.12); color: #1f6f4a; }
+.sent__tick svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.sent__title { margin: 18px 0 8px; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+.sent__text { margin: 0 0 24px; font-size: var(--fs-small); line-height: 1.6; color: var(--ink-soft); }
+.sent__text a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.sent__actions { display: flex; justify-content: center; }
+@media (prefers-reduced-motion: reduce) { .sent[open] { animation: none; } }
 .enquiry__note { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 12.5px; line-height: 1.5; color: #6c7f95; }
 .enquiry__note .ico { width: 14px; height: 14px; color: #7f8ea0; }
 .enquiry__note { flex-wrap: wrap; }

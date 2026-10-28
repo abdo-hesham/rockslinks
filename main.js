@@ -1852,7 +1852,8 @@
 
   function enquiryText(d) {
     return [
-      "New shipment enquiry",
+      "*New shipment enquiry*",
+      "",
       `Name: ${d.name}`,
       d.company && `Company: ${d.company}`,
       `Phone: ${d.phone}`,
@@ -1923,7 +1924,10 @@
         const out = await res.json().catch(() => ({}));
         if (!res.ok || String(out.success) === "false") throw new Error(out.message || res.status);
         form.reset();
-        setStatus("Thank you. Your enquiry is with our team and we reply with a price within one working day.", "ok");
+        setStatus("");
+        const sent = $("#sentDialog");
+        if (sent && sent.showModal) sent.showModal();
+        else setStatus("Your email has been sent. We reply with a price within one working day.", "ok");
       } catch {
         setStatus("The enquiry could not be sent. Please try again or use WhatsApp.", "error");
       } finally {
@@ -1936,6 +1940,9 @@
       setStatus("Your email app has opened with the enquiry ready. Press send there to reach our team.", "ok");
     }
   });
+
+  // the popup sits inside the form, so its button closes it by hand
+  $("#sentClose").addEventListener("click", () => $("#sentDialog").close());
 
   $("#enquiryWa").addEventListener("click", () => {
     if (!validate()) return;

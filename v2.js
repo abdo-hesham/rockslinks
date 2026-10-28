@@ -541,6 +541,7 @@
         // confirmed its activation email, so read the body too
         const out = await res.json().catch(() => ({}));
         if (!res.ok || String(out.success) === "false") throw new Error(out.message || res.status);
+        form.reset();
         setStatus("");
         showDone();
       } catch {
