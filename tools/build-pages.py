@@ -42,6 +42,7 @@ def footer(home):
           <span class="nav__word">rockslink</span>
         </a>
         <p class="footer__copy">&copy; <span id="year">2026</span> Rockslink. All rights reserved.</p>
+        <p class="footer__credit">Designed and developed by <a href="https://ah-studio.site" target="_blank" rel="noopener">ah-studio.site</a></p>
       </div>
       <nav class="footer__cols" aria-label="Footer">
         <div>
@@ -80,7 +81,7 @@ HEAD = '''<!doctype html>
   <meta name="theme-color" content="#101a25" />
   <link rel="preload" href="{root}assets/fonts/dm-sans-400-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="{root}assets/fonts/dm-sans-500-latin.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="{root}styles.css?v=20261028-2" />
+  <link rel="stylesheet" href="{root}styles.css?v=20261028-3" />
 </head>'''
 
 YEAR = '''<button type="button" class="to-top" id="toTop" aria-label="Back to top"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" /></svg></button>
