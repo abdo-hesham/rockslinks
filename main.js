@@ -1904,16 +1904,24 @@
     const endpoint = form.dataset.endpoint;
     const submit = form.querySelector('[type="submit"]');
     if (endpoint) {
-      // Form service (Formspree, Web3Forms, etc.) delivers to the inbox.
+      // FormSubmit (formsubmit.co) delivers the enquiry to sales@rockslink.com.
       submit.disabled = true;
       setStatus("Sending…");
       try {
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify({
+            ...data,
+            _subject: `Shipment enquiry: ${data.service}`,
+            _replyto: data.email || undefined,
+            _template: "table",
+          }),
         });
-        if (!res.ok) throw new Error(res.status);
+        // FormSubmit answers 200 with success "false" until the inbox has
+        // confirmed its activation email, so read the body too
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || String(out.success) === "false") throw new Error(out.message || res.status);
         form.reset();
         setStatus("Thank you. Your enquiry is with our team and we reply with a price within one working day.", "ok");
       } catch {

@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parent.parent
 UPDATED = "16 October 2026"
 SITE = "https://rockslink.com"  # the live address: also in index.html, robots.txt and sitemap.xml
 PHONE, PHONE_HREF = "+20 12 00029811", "tel:+201200029811"
-EMAIL = "omarkhaled7296@gmail.com"
+EMAIL = "sales@rockslink.com"
 WA = "https://wa.me/201200029811"
 
 MARK = '<svg class="logo-mark" viewBox="0 0 148 148" aria-hidden="true"><use href="#mark" /></svg>'
@@ -80,7 +80,7 @@ HEAD = '''<!doctype html>
   <meta name="theme-color" content="#101a25" />
   <link rel="preload" href="{root}assets/fonts/dm-sans-400-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="{root}assets/fonts/dm-sans-500-latin.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="{root}styles.css?v=20261026-3" />
+  <link rel="stylesheet" href="{root}styles.css?v=20261028-1" />
 </head>'''
 
 YEAR = '''<button type="button" class="to-top" id="toTop" aria-label="Back to top"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" /></svg></button>
@@ -111,8 +111,8 @@ PRIVACY = {
             "You can also write to us directly by email or WhatsApp. This website never asks for payment details, ID numbers or passwords.",
         ]),
         ("enquiry", "How your enquiry reaches us", [
-            "The form does not store anything on this website. When you press send, it opens your own email app, or WhatsApp if you choose it, with your enquiry written out. Nothing reaches us until you press send there.",
-            "Your message is then carried by your email provider or by WhatsApp, under their own privacy policies.",
+            f"The form does not store anything on this website. When you press send, your enquiry is passed to FormSubmit (formsubmit.co), a form delivery service, which emails it to our sales team at {EMAIL}. If you choose WhatsApp instead, it opens WhatsApp with your enquiry written out, and nothing reaches us until you press send there.",
+            "FormSubmit, your email provider and WhatsApp carry your message under their own privacy policies.",
         ]),
         ("use", "How we use it", [
             "We use your information to answer your enquiry, prepare a quote, arrange and follow a shipment you book with us, and keep the records the law requires.",
