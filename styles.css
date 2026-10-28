@@ -1144,7 +1144,9 @@ main { position: relative; }
    the left, four short columns of links on the right, and the wordmark
    set huge and barely there along the bottom. Shared by every page
    (tools/build-pages.py writes the markup). */
-.footer { background: var(--night); color: rgba(255, 255, 255, 0.72); padding: 0 var(--gutter); overflow: hidden; content-visibility: auto; contain-intrinsic-size: auto 800px; }
+.footer { background: var(--night); color: rgba(255, 255, 255, 0.72); padding: 0 var(--gutter) 1px; margin-bottom: -1px; overflow: hidden; container-type: inline-size; content-visibility: auto; contain-intrinsic-size: auto 800px; }
+/* the last row of pixels is the footer's, not the light page under it (the
+   wordmark's line height leaves the page a fraction of a pixel taller) */
 .footer__top {
   display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap);
   max-width: 1320px; margin: 0 auto;
@@ -1172,7 +1174,10 @@ main { position: relative; }
   overflow: hidden;
   margin: clamp(56px, 8vw, 120px) 0 0;
   padding-bottom: 1.4vw;
-  font-size: calc((100vw - 2 * var(--gutter)) / 3.46); font-weight: 600; letter-spacing: -0.06em; line-height: 0.86;
+  /* sized to the footer's content box (cqw; 100vw would count the scrollbar):
+     "rockslink" in DM Sans 600 at -0.06em is 3.78em wide, plus a margin */
+  font-size: calc((100vw - 2 * var(--gutter)) / 3.9); font-size: calc(100cqw / 3.9);
+  font-weight: 600; letter-spacing: -0.06em; line-height: 0.86;
   text-align: center; white-space: nowrap;
   color: rgba(255, 255, 255, 0.05);
   user-select: none;
