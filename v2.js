@@ -525,11 +525,17 @@
     const submit = form.querySelector('[type="submit"]');
     if (endpoint) {
       submit.disabled = true;
-      setStatus("Sending…");
+      submit.classList.add("is-loading");
+      submit.setAttribute("aria-busy", "true");
+      setStatus("");
+      // give up after 25 s rather than leave the visitor waiting
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 25000);
       try {
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
+          signal: ctrl.signal,
           body: JSON.stringify({
             ...data,
             _subject: `Shipment enquiry: ${data.service}`,
@@ -547,7 +553,10 @@
       } catch {
         setStatus("The enquiry was not sent. Try again, or send it on WhatsApp.", "error");
       } finally {
+        clearTimeout(timer);
         submit.disabled = false;
+        submit.classList.remove("is-loading");
+        submit.removeAttribute("aria-busy");
       }
     } else {
       const subject = `Shipment enquiry: ${data.service}`;

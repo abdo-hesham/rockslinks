@@ -460,6 +460,17 @@ body.menu-open .nav { color: var(--white); }
 .btn:hover svg { transform: translateX(3px); }
 .btn:active { transform: scale(0.98); }
 .btn:disabled { opacity: 0.5; cursor: progress; }
+/* sending: the arrow's circle turns into a spinner, the button stays solid */
+.btn.is-loading { opacity: 1; }
+.btn.is-loading i { position: relative; }
+.btn.is-loading i svg { opacity: 0; }
+.btn.is-loading i::after {
+  content: ""; position: absolute; inset: 9px; border-radius: 50%;
+  border: 2px solid rgba(21, 35, 51, 0.18); border-top-color: var(--ink);
+  animation: btnSpin 0.7s linear infinite;
+}
+@keyframes btnSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .btn.is-loading i::after { animation-duration: 1.6s; } }
 .btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 /* outline (secondary) */
 .btn--ghost {
@@ -1139,6 +1150,7 @@ main { position: relative; }
 .sent__text { margin: 0 0 24px; font-size: var(--fs-small); line-height: 1.6; color: var(--ink-soft); }
 .sent__text a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 .sent__actions { display: flex; justify-content: center; }
+.sent__actions .btn { justify-content: center; min-width: 148px; padding: 0 32px; }
 @media (prefers-reduced-motion: reduce) { .sent[open] { animation: none; } }
 .enquiry__note { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 12.5px; line-height: 1.5; color: #6c7f95; }
 .enquiry__note .ico { width: 14px; height: 14px; color: #7f8ea0; }
