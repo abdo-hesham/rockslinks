@@ -72,6 +72,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .btn:hover { transform: translateY(-2px); }
 /* sending: the label gives way to a spinner, the button keeps its size */
 .btn.is-loading { position: relative; color: transparent !important; cursor: progress; }
+.btn:disabled { pointer-events: none; transform: none; }
+.btn:disabled:not(.is-loading) { opacity: 0.5; }
 .btn.is-loading::after {
   content: ""; position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px;
   border-radius: 50%; border: 2px solid rgba(16, 26, 37, 0.25); border-top-color: #101a25;

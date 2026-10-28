@@ -462,6 +462,8 @@ body.menu-open .nav { color: var(--white); }
 .btn:disabled { opacity: 0.5; cursor: progress; }
 /* sending: the arrow's circle turns into a spinner, the button stays solid */
 .btn.is-loading { opacity: 1; }
+.btn:disabled { pointer-events: none; }
+.btn:disabled svg { transform: none; }
 .btn.is-loading i { position: relative; }
 .btn.is-loading i svg { opacity: 0; }
 .btn.is-loading i::after {

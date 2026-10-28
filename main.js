@@ -1927,7 +1927,10 @@
     const submit = form.querySelector('[type="submit"]');
     if (endpoint) {
       // /api/enquiry (Resend) delivers the enquiry to sales@rockslink.com.
+      if (form.classList.contains("is-sending")) return;
+      form.classList.add("is-sending");
       submit.disabled = true;
+      $("#enquiryWa").disabled = true;
       submit.classList.add("is-loading");
       submit.setAttribute("aria-busy", "true");
       setStatus("");
@@ -1945,7 +1948,9 @@
         setStatus("The enquiry could not be sent. Please try again or use WhatsApp.", "error");
       } finally {
         clearTimeout(timer);
+        form.classList.remove("is-sending");
         submit.disabled = false;
+        $("#enquiryWa").disabled = false;
         submit.classList.remove("is-loading");
         submit.removeAttribute("aria-busy");
       }

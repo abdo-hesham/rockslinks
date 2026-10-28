@@ -81,7 +81,7 @@ HEAD = '''<!doctype html>
   <meta name="theme-color" content="#101a25" />
   <link rel="preload" href="{root}assets/fonts/dm-sans-400-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="{root}assets/fonts/dm-sans-500-latin.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="{root}styles.css?v=20261028-6" />
+  <link rel="stylesheet" href="{root}styles.css?v=20261028-7" />
 </head>'''
 
 YEAR = '''<button type="button" class="to-top" id="toTop" aria-label="Back to top"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" /></svg></button>
