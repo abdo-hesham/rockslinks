@@ -242,18 +242,7 @@ body.menu-open .nav { color: var(--white); }
   text-shadow: 0 1px 14px rgba(10, 20, 32, 0.7);
 }
 .hero__lede span { display: inline-block; animation: heroRise 1.3s var(--ease) 0.4s both; }
-.hero__services {
-  display: flex; flex-wrap: wrap; gap: 8px; max-width: 40em;
-  margin: var(--s-m) 0 0; padding: 0; list-style: none;
-  animation: heroRise 1.3s var(--ease) 0.5s both;
-}
-.hero__services li {
-  padding: 6px 14px; border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  background: rgba(10, 20, 32, 0.28);
-  font-size: 13px; letter-spacing: 0.01em; color: rgba(255, 255, 255, 0.9);
-}
-@media (prefers-reduced-motion: reduce) { .hero__lede span, .hero__services { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .hero__lede span { animation: none; } }
 
 /* statement */
 .chapter--statement {
@@ -1343,8 +1332,6 @@ body.in-atlas .wa-fab { visibility: hidden; }
   .nav { padding: 18px 16px; }
   .nav__news { display: none; }
   .chapter--hero { padding: 0 16px; justify-content: flex-end; padding-bottom: 14vh; }
-  .hero__services { gap: 6px; }
-  .hero__services li { padding: 5px 11px; font-size: 12px; }
   .chapter--ship { padding: 0 16px; justify-content: flex-start; padding-top: 22vh; }
   .film__shade {
     background:

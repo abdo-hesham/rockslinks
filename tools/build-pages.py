@@ -13,9 +13,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 UPDATED = "16 October 2026"
 SITE = "https://rockslink.com"  # the live address: also in index.html, robots.txt and sitemap.xml
-PHONE, PHONE_HREF = "+20 12 00029811", "tel:+201200029811"
+PHONE, PHONE_HREF = "+20 12 3456 7890", "tel:+201234567890"
 EMAIL = "sales@rockslink.com"
-WA = "https://wa.me/201200029811"
+WA = "https://wa.me/201234567890"
 
 MARK = '<svg class="logo-mark" viewBox="0 0 148 148" aria-hidden="true"><use href="#mark" /></svg>'
 SPRITE = '''<svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -80,7 +80,7 @@ HEAD = '''<!doctype html>
   <meta name="theme-color" content="#101a25" />
   <link rel="preload" href="{root}assets/fonts/dm-sans-400-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="{root}assets/fonts/dm-sans-500-latin.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="{root}styles.css?v=20261028-1" />
+  <link rel="stylesheet" href="{root}styles.css?v=20261028-2" />
 </head>'''
 
 YEAR = '''<button type="button" class="to-top" id="toTop" aria-label="Back to top"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" /></svg></button>
