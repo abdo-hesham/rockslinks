@@ -26,6 +26,21 @@ caching on Apache hosting; Netlify, Vercel and GitHub Pages use `404.html`
 on their own. The site's address (`https://rockslink.com`) is set in
 `robots.txt`, `sitemap.xml`, the canonical links and `tools/build-pages.py`.
 
+## Quote form
+
+The form posts to `api/enquiry.js`, a Vercel function that emails the
+enquiry to sales@rockslink.com through [Resend](https://resend.com). Set
+these in the Vercel project (Settings, Environment Variables), then
+redeploy:
+
+- `RESEND_API_KEY`: the Resend API key
+- `ENQUIRY_FROM`: the sender, on a domain verified in Resend, for example
+  `Rockslink website <website@rockslink.com>`
+- `ENQUIRY_TO` (optional): where enquiries go, sales@rockslink.com if unset
+
+Until the key is set, the function answers "not configured" and the form
+sends through FormSubmit instead (`data-fallback` on the form).
+
 ## Tools
 
 - `tools/build-pages.py`: writes the shared footer into `index.html` and

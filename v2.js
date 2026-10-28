@@ -514,6 +514,27 @@
     measureThread();
   });
 
+  /* Our own /api/enquiry emails the enquiry through Resend. Until its key
+     is set in Vercel (it answers 503 "not_configured"), or where there is
+     no such function (local preview: 501), the backup service takes it. */
+  async function sendEnquiry(endpoint, fallback, data, signal) {
+    const post = (url, body) => fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(body),
+      signal,
+    });
+    const res = await post(endpoint, data);
+    if (res.ok) return;
+    const out = await res.json().catch(() => ({}));
+    if (!fallback || !([404, 405, 501].includes(res.status) || out.error === "not_configured")) throw new Error(out.error || res.status);
+    // FormSubmit answers 200 with success "false" until the inbox has
+    // confirmed its activation email, so read the body too
+    const res2 = await post(fallback, { ...data, _subject: `Shipment enquiry: ${data.service}`, _replyto: data.email || undefined, _template: "table" });
+    const out2 = await res2.json().catch(() => ({}));
+    if (!res2.ok || String(out2.success) === "false") throw new Error(out2.message || res2.status);
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -532,21 +553,7 @@
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 25000);
       try {
-        const res = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
-          signal: ctrl.signal,
-          body: JSON.stringify({
-            ...data,
-            _subject: `Shipment enquiry: ${data.service}`,
-            _replyto: data.email || undefined,
-            _template: "table",
-          }),
-        });
-        // FormSubmit answers 200 with success "false" until the inbox has
-        // confirmed its activation email, so read the body too
-        const out = await res.json().catch(() => ({}));
-        if (!res.ok || String(out.success) === "false") throw new Error(out.message || res.status);
+        await sendEnquiry(endpoint, form.dataset.fallback, data, ctrl.signal);
         form.reset();
         setStatus("");
         showDone();

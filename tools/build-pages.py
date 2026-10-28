@@ -112,8 +112,8 @@ PRIVACY = {
             "You can also write to us directly by email or WhatsApp. This website never asks for payment details, ID numbers or passwords.",
         ]),
         ("enquiry", "How your enquiry reaches us", [
-            f"The form does not store anything on this website. When you press send, your enquiry is passed to FormSubmit (formsubmit.co), a form delivery service, which emails it to our sales team at {EMAIL}. If you choose WhatsApp instead, it opens WhatsApp with your enquiry written out, and nothing reaches us until you press send there.",
-            "FormSubmit, your email provider and WhatsApp carry your message under their own privacy policies.",
+            f"The form does not store anything on this website. When you press send, your enquiry is emailed to our sales team at {EMAIL} through Resend (resend.com), an email delivery service, or, if that is unavailable, through FormSubmit (formsubmit.co). If you choose WhatsApp instead, it opens WhatsApp with your enquiry written out, and nothing reaches us until you press send there.",
+            "Resend, FormSubmit, your email provider and WhatsApp carry your message under their own privacy policies.",
         ]),
         ("use", "How we use it", [
             "We use your information to answer your enquiry, prepare a quote, arrange and follow a shipment you book with us, and keep the records the law requires.",

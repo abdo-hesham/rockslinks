@@ -201,7 +201,7 @@
           <!-- data-endpoint: paste a form-service URL (Web3Forms, Formspree) to
                deliver enquiries straight to the inbox. Empty = opens the
                visitor's email app with the enquiry written out. -->
-          <form class="form" id="enquiry" novalidate data-endpoint="https://formsubmit.co/ajax/sales@rockslink.com" data-email="sales@rockslink.com" data-whatsapp="201212543463" aria-labelledby="quoteTitle">
+          <form class="form" id="enquiry" novalidate data-endpoint="/api/enquiry" data-fallback="https://formsubmit.co/ajax/sales@rockslink.com" data-email="sales@rockslink.com" data-whatsapp="201212543463" aria-labelledby="quoteTitle">
             <div class="form__body" id="formBody">
               <label class="field">
                 <span>What are you moving?</span>
@@ -291,6 +291,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
-  <script src="v2.js?v=10"></script>
+  <script src="v2.js?v=11"></script>
 </body>
 </html>
